@@ -1,0 +1,1723 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>POS Master File — Cashier</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <link href="style.css" rel="stylesheet" />
+  </head>
+  <body class="cashier-page bg-white">
+    <!-- Opening Cash gate: full-screen, blocks the sales UI until the drawer is opened -->
+    <div
+      id="openingCashGate"
+      class="d-none position-fixed top-0 start-0 w-100 h-100 bg-white"
+      style="z-index: 2000; overflow-y: auto"
+    >
+      <div
+        class="d-flex align-items-start justify-content-center p-3"
+        style="min-height: 100%"
+      >
+        <div class="card shadow-sm" style="max-width: 440px; width: 100%">
+          <div class="card-body p-4">
+            <h5 class="mb-1">
+              <i class="bi bi-cash-stack me-1"></i>Opening Cash
+            </h5>
+            <div class="small text-muted mb-3">
+              Enter the beginning cash float to start selling.
+            </div>
+            <div class="small mb-1">
+              Cashier: <strong id="gateCashierName">—</strong>
+            </div>
+            <div class="small mb-1">
+              Counter: <strong id="gateCounterLabel">—</strong>
+            </div>
+            <div class="small mb-3">
+              Date: <strong id="gateDate">—</strong>
+            </div>
+
+            <div class="mb-1">
+              <label class="form-label small mb-1" for="gateCounterSelect"
+                >Counter for this device</label
+              >
+              <select id="gateCounterSelect" class="form-select"></select>
+              <div class="small text-muted">
+                This device remembers its counter.
+              </div>
+            </div>
+            <div id="gateOccupancy" class="small mb-3"></div>
+
+            <form id="gateForm">
+              <div
+                class="alert alert-info py-2 small d-none"
+                id="gateNewShiftNote"
+              ></div>
+              <label class="form-label" for="openingFloatInput"
+                >Beginning Cash / Change</label
+              >
+              <div class="input-group input-group-lg mb-2">
+                <span class="input-group-text">₱</span>
+                <input
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  class="form-control"
+                  id="openingFloatInput"
+                  inputmode="decimal"
+                  placeholder="0.00"
+                  autocomplete="off"
+                />
+              </div>
+              <div class="small text-muted mb-1">
+                Count the float (optional — the total above stays the source
+                of truth):
+              </div>
+              <div id="gateDenominationGrid" class="mb-2"></div>
+              <div class="text-danger small mb-2" id="gateError"></div>
+              <button
+                type="submit"
+                class="btn btn-primary btn-lg w-100"
+                id="btnConfirmOpeningCash"
+              >
+                Confirm
+              </button>
+              <div class="text-center mt-3">
+                <a href="#" id="gateBackToLogin" class="small text-muted"
+                  >Back to login</a
+                >
+              </div>
+            </form>
+
+            <div id="gateAlreadyOpenView" class="d-none text-center">
+              <div class="alert alert-info">
+                Drawer already opened today —
+                <strong id="gateExistingFloat">₱0.00</strong>
+              </div>
+              <button
+                type="button"
+                class="btn btn-primary btn-lg w-100"
+                id="btnGateContinue"
+              >
+                Continue to Sales
+              </button>
+              <div class="text-center mt-3">
+                <a href="#" id="gateBackToLogin2" class="small text-muted"
+                  >Back to login</a
+                >
+              </div>
+            </div>
+
+            <div id="gateNoCounterView" class="d-none text-center">
+              <div class="alert alert-warning">
+                No open counter — ask your manager.
+              </div>
+              <div class="text-center mt-3">
+                <a href="#" id="gateBackToLogin3" class="small text-muted"
+                  >Back to login</a
+                >
+              </div>
+            </div>
+
+            <div id="gateBlockedView" class="d-none">
+              <div class="alert alert-warning text-center" id="gateBlockedMsg">
+                This counter already has an open shift under another cashier.
+              </div>
+              <div class="small text-muted text-center">
+                Choose an available counter above to continue on it.
+              </div>
+              <div class="text-center mt-3">
+                <a href="#" id="gateBackToLogin4" class="small text-muted"
+                  >Back to login</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <header
+      class="pos-header d-flex align-items-center justify-content-between px-3 py-1 border-bottom bg-white flex-shrink-0"
+    >
+      <div class="d-flex align-items-center gap-2">
+        <span class="pos-wordmark">POS_AR</span>
+        <span class="badge text-bg-light border fw-normal" title="Counter"
+          >Counter <strong id="cashierCounterLabel">—</strong></span
+        >
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <span class="pos-clock" id="headerClock" title="Current time and date"
+          >—</span
+        >
+        <span class="small text-muted"
+          >Cashier:
+          <strong id="cashierName" class="text-dark">—</strong></span
+        >
+        <span class="badge text-bg-secondary" id="cashDrawerStatus"
+          >Not Open</span
+        >
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary"
+          id="navReportsBtn"
+        >
+          <i class="bi bi-bar-chart"></i> Reports
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-danger"
+          id="logoutBtn"
+          title="Logout"
+        >
+          <i class="bi bi-box-arrow-right"></i>
+        </button>
+      </div>
+    </header>
+
+    <main class="container-fluid px-2 py-1 pos-main">
+        <section id="section-pos" class="content-section">
+          <!-- Command bar: qty first, then barcode, giant total due -->
+          <div
+            class="pos-commandbar d-flex align-items-center gap-3 px-3 py-2 border-bottom bg-white flex-shrink-0"
+          >
+            <div>
+              <label class="visually-hidden" for="posQtyInput">Quantity</label>
+              <input
+                type="number"
+                min="1"
+                step="1"
+                value="1"
+                id="posQtyInput"
+                class="form-control text-center pos-qty-input"
+                inputmode="numeric"
+                autocomplete="off"
+                autofocus
+                title="Quantity — Enter to move to barcode"
+              />
+            </div>
+            <div class="flex-grow-1">
+              <label class="visually-hidden" for="posBarcodeInput"
+                >Barcode</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="posBarcodeInput"
+                name="barcode"
+                autocomplete="barcode"
+                inputmode="numeric"
+                placeholder="Scan or type barcode, then Enter"
+              />
+            </div>
+            <span
+              class="badge text-bg-light border fw-normal"
+              id="posPriceTierLabel"
+              title="Price mode"
+              >Regular</span
+            >
+            <div class="pos-command-total text-end">
+              <div class="pos-command-total-label">Total Due</div>
+              <div id="posTotal" class="pos-command-total-value">₱0.00</div>
+            </div>
+          </div>
+          <div
+            id="posScanMessage"
+            class="pos-scan-message small text-muted px-3"
+          ></div>
+
+          <div class="row g-0 pos-main-row">
+            <div class="pos-cart-col">
+              <div class="card pos-main-card border-0">
+                <div class="table-responsive pos-cart-wrap">
+                  <table
+                    class="table table-sm table-hover align-middle mb-0 pos-cart-table"
+                  >
+                    <thead class="table-light sticky-top">
+                      <tr>
+                        <th style="width: 5%">#</th>
+                        <th style="width: 16%">Barcode</th>
+                        <th>Description</th>
+                        <th class="text-end" style="width: 12%">Price</th>
+                        <th class="text-center" style="width: 150px">Qty</th>
+                        <th class="text-end" style="width: 14%">Line Total</th>
+                      </tr>
+                    </thead>
+                    <tbody id="posCartBody"></tbody>
+                  </table>
+                </div>
+
+                <div class="border-top px-3 py-1">
+                  <span class="small"
+                    ><strong>Items:</strong>
+                    <span id="posItemCount">0</span></span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <aside class="pos-sidepanel">
+              <form id="checkoutForm" class="pos-sidepanel-form">
+                <!-- Customer -->
+                <section class="pos-panel-block">
+                  <div class="pos-panel-label">Customer</div>
+                  <div
+                    class="d-flex align-items-center justify-content-between gap-2"
+                  >
+                    <span
+                      class="fw-semibold text-truncate"
+                      id="panelCustomerName"
+                      >Walk-in</span
+                    >
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-link text-decoration-none p-0 d-none"
+                      id="btnClearCustomer"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  <div id="posSelectedCustomer" class="d-none mt-1">
+                    <div
+                      class="small text-muted"
+                      id="posCustomerTypeLine"
+                    ></div>
+                    <div
+                      class="small fw-semibold text-success"
+                      id="posSukiIndicator"
+                    >
+                      No Suki Card
+                    </div>
+                    <div class="small text-muted" id="posSukiPointsLine"></div>
+                    <div class="small text-muted" id="posSukiProgressLine"></div>
+                    <div class="small text-muted" id="posSukiEarnedLine"></div>
+                    <div class="small text-muted" id="posArAvailability"></div>
+                    <div class="form-check mt-1 d-none" id="posUseArWrapper">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="posUseAr"
+                      />
+                      <label class="form-check-label small" for="posUseAr"
+                        >Charge to AR account</label
+                      >
+                    </div>
+                  </div>
+                </section>
+
+                <hr class="pos-hr" />
+
+                <!-- Discount -->
+                <section class="pos-panel-block">
+                  <div class="pos-panel-label">Discount</div>
+                  <div class="fw-semibold" id="panelDiscountName">None</div>
+                  <button
+                    type="button"
+                    id="btnDiscountPanel"
+                    class="btn btn-sm btn-outline-secondary w-100 mt-2 fn-btn justify-content-center"
+                  >
+                    <span class="fn-key">Ctrl+Shift+D</span>
+                    <span class="fn-label">Discount</span>
+                  </button>
+                  <select
+                    id="posDiscount"
+                    class="d-none"
+                    aria-hidden="true"
+                    tabindex="-1"
+                  ></select>
+                </section>
+
+                <hr class="pos-hr" />
+
+                <!-- Sale meta -->
+                <section class="pos-panel-block">
+                  <label class="pos-panel-label" for="posCounter"
+                    >Counter</label
+                  >
+                  <select
+                    class="form-select form-select-sm"
+                    id="posCounter"
+                    required
+                  ></select>
+                  <div class="small text-muted mt-1">
+                    Locked for this shift — it is set at the opening gate
+                    and cannot be changed while selling.
+                  </div>
+
+                  <div class="totals-readout mt-2">
+                    <div class="totals-row">
+                      <span>Subtotal</span
+                      ><strong id="posSubtotal">₱0.00</strong>
+                    </div>
+                    <div class="totals-row">
+                      <span>Discount</span
+                      ><strong id="posDiscountAmount">- ₱0.00</strong>
+                    </div>
+                    <div class="totals-row">
+                      <span>Items</span><strong id="posTotalQty">0</strong>
+                    </div>
+                  </div>
+                </section>
+              </form>
+            </aside>
+          </div>
+
+          <!-- Function-key bar: every button shows its shortcut -->
+          <div class="card mt-1 flex-shrink-0">
+            <div class="card-body py-1 px-2">
+              <div class="d-flex flex-wrap gap-1 align-items-center">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary fn-btn"
+                  id="btnHelp"
+                >
+                  <span class="fn-key">F1</span>
+                  <span class="fn-label">Help</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary fn-btn"
+                  id="btnOpenProductList"
+                >
+                  <span class="fn-key">F2</span>
+                  <span class="fn-label">Products</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary fn-btn"
+                  id="btnNewSale"
+                >
+                  <span class="fn-key">F3</span>
+                  <span class="fn-label">New Sale</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary fn-btn"
+                  id="btnCustomer"
+                >
+                  <span class="fn-key">F4</span>
+                  <span class="fn-label">Customer</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary fn-btn"
+                  id="btnReprint"
+                >
+                  <span class="fn-key">F5</span>
+                  <span class="fn-label">Reprint</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary fn-btn"
+                  id="btnHold"
+                >
+                  <span class="fn-key">F6</span>
+                  <span class="fn-label">Hold</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary fn-btn"
+                  id="btnResumeTransaction"
+                >
+                  <span class="fn-key">F7</span>
+                  <span class="fn-label">Unhold</span>
+                  <span
+                    class="badge rounded-pill text-bg-danger d-none"
+                    id="heldCountBadge"
+                    >0</span
+                  >
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-danger fn-btn"
+                  id="btnCashLift"
+                >
+                  <span class="fn-key">F8</span>
+                  <span class="fn-label">Cash Lift</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-success fn-btn"
+                  id="btnOpenPayment"
+                >
+                  <span class="fn-key">F9</span>
+                  <span class="fn-label">Tender</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-danger fn-btn"
+                  id="btnRemoveLine"
+                >
+                  <span class="fn-key">F10</span>
+                  <span class="fn-label">Remove Line</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-danger fn-btn"
+                  id="btnVoidCart"
+                >
+                  <span class="fn-key">F12</span>
+                  <span class="fn-label">Void Sale</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary fn-btn"
+                  id="btnDiscount"
+                >
+                  <span class="fn-key">Ctrl+Shift+D</span>
+                  <span class="fn-label">Discount</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary fn-btn"
+                  id="btnDrawer"
+                >
+                  <span class="fn-key">Alt+Shift+D</span>
+                  <span class="fn-label">Cash Float</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary fn-btn"
+                  id="btnEndShift"
+                >
+                  <span class="fn-key">Ctrl+Shift+E</span>
+                  <span class="fn-label">End Shift</span>
+                </button>
+                <span class="keyboard-hint ms-auto"
+                  ><kbd>↑</kbd><kbd>↓</kbd> line · <kbd>+</kbd><kbd>-</kbd> qty ·
+                  <kbd>Esc</kbd> · <kbd>/</kbd></span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Cash float details live in a modal now (same controls, no page scroll) -->
+          <div class="modal fade" id="drawerModal" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header py-2">
+                  <h6 class="modal-title">
+                    <i class="bi bi-cash-stack me-1"></i>Cash Float
+                  </h6>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div class="modal-body">
+                  <div class="mb-2">
+                    <label class="form-label small"
+                      >Beginning Cash / Change</label
+                    >
+                    <div class="input-group">
+                      <span class="input-group-text">₱</span>
+                      <input
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        class="form-control"
+                        id="beginningFloatInput"
+                        placeholder="0.00"
+                      />
+                      <button
+                        class="btn btn-outline-primary"
+                        id="btnOpenCashDrawer"
+                        type="button"
+                      >
+                        Open
+                      </button>
+                    </div>
+                  </div>
+                  <div class="drawer-stat">
+                    <span>Cash Sales</span
+                    ><strong id="drawerCashSales">₱0.00</strong>
+                  </div>
+                  <div class="drawer-stat">
+                    <span>Cash Lift</span
+                    ><strong id="drawerCashLifts">₱0.00</strong>
+                  </div>
+                  <div class="drawer-stat">
+                    <span>Float Added</span
+                    ><strong id="drawerCashReplenishments">₱0.00</strong>
+                  </div>
+                  <div class="drawer-total">
+                    <span>Expected Cash</span
+                    ><strong id="drawerExpectedCash">₱0.00</strong>
+                  </div>
+                  <hr />
+                  <div class="mb-2">
+                    <label class="form-label small" for="replenishFloatInput"
+                      >Add Float</label
+                    >
+                    <div class="input-group">
+                      <span class="input-group-text">₱</span>
+                      <input
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        class="form-control"
+                        id="replenishFloatInput"
+                        placeholder="0.00"
+                      />
+                    </div>
+                    <div class="small text-muted mt-1">
+                      Count the added cash — the breakdown must add up to the
+                      amount.
+                    </div>
+                    <div
+                      id="replenishDenominationGrid"
+                      class="mt-2"
+                    ></div>
+                    <label
+                      class="form-label small mt-2"
+                      for="replenishSupervisorUsername"
+                      >Supervisor / Administrator Username</label
+                    >
+                    <input
+                      class="form-control form-control-sm mb-2"
+                      id="replenishSupervisorUsername"
+                      autocomplete="off"
+                    />
+                    <label
+                      class="form-label small"
+                      for="replenishSupervisorPassword"
+                      >Password</label
+                    >
+                    <input
+                      type="password"
+                      class="form-control form-control-sm mb-2"
+                      id="replenishSupervisorPassword"
+                    />
+                    <div
+                      class="text-danger small mt-1"
+                      id="replenishFloatError"
+                    ></div>
+                    <button
+                      class="btn btn-outline-success w-100 mt-2"
+                      id="btnSubmitReplenishFloat"
+                      type="button"
+                    >
+                      <i class="bi bi-cash-stack"></i> Add Float
+                    </button>
+                  </div>
+                  <hr />
+                  <div class="mb-2">
+                    <label class="form-label small" for="drawerLiftAmount"
+                      >Cash Lift Amount</label
+                    >
+                    <div class="input-group">
+                      <span class="input-group-text">₱</span>
+                      <input
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        class="form-control"
+                        id="drawerLiftAmount"
+                        placeholder="0.00"
+                      />
+                    </div>
+                    <div class="small text-muted mt-1">
+                      Uses the Supervisor / Administrator fields above.
+                      Enter the amount and press Enter, or click below —
+                      no second modal opens.
+                    </div>
+                    <div
+                      class="text-danger small mt-1"
+                      id="drawerLiftError"
+                    ></div>
+                  </div>
+                  <button
+                    class="btn btn-outline-danger w-100 mt-2"
+                    id="btnCashLiftDrawer"
+                    type="button"
+                  >
+                    <i class="bi bi-box-arrow-up"></i> Record Cash Lift
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="section-reports" class="content-section d-none">
+          <div id="cashierReports"></div>
+          <div class="d-none">
+            <div
+              class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3"
+            >
+              <div>
+                <h5 class="mb-0">Cashier Reports</h5>
+                <div class="text-muted small">
+                  Payment reconciliation and sales summaries.
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                <input
+                  type="date"
+                  class="form-control"
+                  id="reportDateInput"
+                /><button
+                  class="btn btn-outline-secondary"
+                  id="btnRefreshReports"
+                >
+                  <i class="bi bi-arrow-clockwise"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-4">
+                <div class="report-payment-card">
+                  <div class="small text-muted text-uppercase">Cash</div>
+                  <div class="report-payment-value" id="reportCashTotal">
+                    ₱0.00
+                  </div>
+                  <div class="small">Physical drawer reconciliation</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="report-payment-card">
+                  <div class="small text-muted text-uppercase">GCash</div>
+                  <div class="report-payment-value" id="reportGcashTotal">
+                    ₱0.00
+                  </div>
+                  <div class="small">Electronic payments</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="report-payment-card">
+                  <div class="small text-muted text-uppercase">AR</div>
+                  <div class="report-payment-value" id="reportArTotal">
+                    ₱0.00
+                  </div>
+                  <div class="small">Credit sales / house charges</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card p-3 mb-3">
+              <h6>Sales Summary</h6>
+              <div class="row g-3">
+                <div class="col-6 col-lg-3">
+                  <div class="dashboard-card">
+                    <div class="metric-label">Transactions</div>
+                    <div class="metric-value" id="sumTransactions">0</div>
+                  </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                  <div class="dashboard-card">
+                    <div class="metric-label">Items Sold</div>
+                    <div class="metric-value" id="sumItemsSold">0</div>
+                  </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                  <div class="dashboard-card">
+                    <div class="metric-label">Total Sales</div>
+                    <div class="metric-value" id="sumTotalSales">₱0.00</div>
+                  </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                  <div class="dashboard-card">
+                    <div class="metric-label">Discounts</div>
+                    <div class="metric-value" id="sumTotalDiscounts">₱0.00</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-lg-6">
+                <div class="card p-3 h-100">
+                  <h6>Sales by Date</h6>
+                  <div id="dateReportResult" class="small"></div>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="card p-3 h-100">
+                  <h6>Most Purchased Product</h6>
+                  <div id="mostPurchasedResult" class="small"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="section-activity" class="content-section d-none">
+          <div
+            class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2"
+          >
+            <input
+              type="text"
+              class="form-control"
+              id="activitySearch"
+              placeholder="Search activity..."
+              style="max-width: 300px"
+            />
+            <div class="d-flex gap-2">
+              <select
+                class="form-select"
+                id="activityModuleFilter"
+                style="max-width: 200px"
+              >
+                <option value="">All modules</option>
+              </select>
+              <button class="btn btn-outline-secondary" id="btnRefreshActivity">
+                <i class="bi bi-arrow-clockwise"></i>
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive card p-2">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Date/Time</th>
+                  <th>Actor</th>
+                  <th>Module</th>
+                  <th>Action</th>
+                  <th>Record</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody id="activityTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+
+    <div
+      class="toast-container position-fixed bottom-0 end-0 p-3"
+      id="toastContainer"
+      style="z-index: 1200"
+    ></div>
+
+    <!-- Product List -->
+    <div class="modal fade" id="productListModal" tabindex="-1">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              Product List <span class="small text-muted">(F2)</span>
+            </h5>
+            <button class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-2 mb-3">
+              <div class="col-md-8">
+                <input
+                  class="form-control"
+                  id="posProductSearch"
+                  name="barcode-search"
+                  autocomplete="barcode-search"
+                  inputmode="numeric"
+                  placeholder="Search barcode"
+                />
+              </div>
+              <div class="col-md-4">
+                <select class="form-select" id="posCategoryFilter"></select>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>Barcode</th>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th class="text-end">Price</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="posProductTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment -->
+    <div class="modal fade" id="paymentModal" tabindex="-1">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header py-2">
+            <div>
+              <h5 class="modal-title mb-0">Tender</h5>
+            </div>
+            <button
+              class="btn-close"
+              type="button"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body py-2">
+            <div class="row g-2 mb-2">
+              <div class="col-6">
+                <div class="border rounded p-2 text-center bg-white">
+                  <div class="small text-muted text-uppercase">Total Due</div>
+                  <div id="tenderTotalDue" class="tender-giant">₱0.00</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="border rounded p-2 text-center bg-white">
+                  <div
+                    id="tenderDynamicLabel"
+                    class="small text-muted text-uppercase"
+                  >
+                    Remaining
+                  </div>
+                  <div
+                    id="tenderDynamicValue"
+                    class="tender-giant text-warning"
+                  >
+                    ₱0.00
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="progress mb-2" style="height: 6px">
+              <div
+                id="tenderProgress"
+                class="progress-bar bg-success"
+                role="progressbar"
+                style="width: 0%"
+              ></div>
+            </div>
+            <div id="tenderArEligibility" class="small mt-1"></div>
+            <div class="d-flex flex-wrap gap-3 small text-muted mb-2">
+              <span
+                >Total
+                <strong id="paymentTotalAmount" class="text-dark"
+                  >₱0.00</strong
+                ></span
+              >
+              <span
+                >Paid
+                <strong id="paymentTotalPaid" class="text-dark"
+                  >₱0.00</strong
+                ></span
+              >
+              <span
+                >Remaining
+                <strong id="paymentRemaining" class="text-dark"
+                  >₱0.00</strong
+                ></span
+              >
+              <span
+                >Change
+                <strong id="paymentChange" class="text-dark">₱0.00</strong></span
+              >
+            </div>
+
+            <div id="paymentArSection" class="alert alert-info d-none py-2">
+              <strong>AR Charge</strong>
+              <div class="small mt-1">
+                This sale will be charged to the selected customer's active AR
+                account. No cash or other payment rows are added.
+              </div>
+            </div>
+            <div id="paymentAddSection">
+              <div class="d-flex flex-wrap align-items-end gap-2">
+                <div>
+                  <div class="form-label small mb-1">Method</div>
+                  <div id="paymentMethodPills" class="d-flex flex-wrap gap-1"></div>
+                  <input type="hidden" id="paymentMethod" />
+                </div>
+                <div>
+                  <label class="form-label small mb-1" for="paymentAmount"
+                    >Amount</label
+                  >
+                  <input
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    class="form-control form-control-lg tender-amount"
+                    id="paymentAmount"
+                    inputmode="decimal"
+                    placeholder="₱0.00"
+                  />
+                </div>
+                <div id="paymentReferenceWrapper">
+                  <label class="form-label small mb-1" for="paymentReference"
+                    >Reference
+                    <span class="text-muted">(optional)</span></label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="paymentReference"
+                    maxlength="50"
+                    placeholder="Reference / approval no."
+                  />
+                </div>
+                <div id="paymentGiftCertificateWrapper" class="d-none">
+                  <label
+                    class="form-label small mb-1"
+                    for="paymentGiftCertificate"
+                    >Gift Cert ID / GC Code</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="paymentGiftCertificate"
+                    placeholder="ID or GC-XXXXXXXX"
+                    maxlength="24"
+                    autocomplete="off"
+                    spellcheck="false"
+                  />
+                  <div id="paymentGcInfo" class="small mt-1"></div>
+                </div>
+                <div class="ms-auto">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    id="btnAddPayment"
+                  >
+                    <i class="bi bi-plus-lg"></i> Add <kbd>Enter</kbd>
+                  </button>
+                </div>
+              </div>
+              <div id="paymentHint" class="small text-muted mt-1">
+                Add the amount for this payment method.
+              </div>
+            </div>
+
+            <div class="mt-2">
+              <div class="small text-muted text-uppercase mb-1">
+                Payments
+                <span class="text-lowercase"
+                  >(↑↓ select · Del remove)</span
+                >
+              </div>
+              <div id="paymentRows" tabindex="0"></div>
+            </div>
+            <div class="text-danger small mt-1" id="paymentError"></div>
+          </div>
+          <div class="modal-footer py-2">
+            <div class="d-flex gap-2 ms-auto">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                class="btn btn-success"
+                id="paymentCompleteBtn"
+                disabled
+              >
+                Complete Sale
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer -->
+    <div class="modal fade" id="customerModal" tabindex="-1">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Customer / Suki Card</h5>
+            <button class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <!-- <div class="alert alert-light border small mb-3">Search results show identification only. Point balances appear only after you select a customer.</div> -->
+            <div class="d-flex gap-2 mb-3">
+              <input
+                class="form-control"
+                id="posCustomerSearch"
+                placeholder="Search customer name, contact, or Suki card"
+              />
+              <select
+                class="form-select"
+                id="posCustomerArFilter"
+                style="width: 190px"
+              >
+                <option value="ar" selected>AR accounts only</option>
+                <option value="suki">Suki card only</option>
+                <option value="all">All customers</option>
+              </select>
+            </div>
+            <div class="list-group" id="posCustomerResults"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Held Transactions -->
+    <div class="modal fade" id="heldModal" tabindex="-1">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Resume Transaction</h5>
+            <button class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="list-group" id="heldModalList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Supervisor Authorization -->
+    <div class="modal fade" id="supervisorModal" tabindex="-1">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <form id="supervisorForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="supervisorModalTitle">
+                Supervisor Authorization
+              </h5>
+              <button
+                class="btn-close"
+                type="button"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div
+                class="alert alert-warning py-2 small"
+                id="supervisorActionLabel"
+              >
+                Supervisor approval is required.
+              </div>
+              <label class="form-label small">Supervisor Username</label
+              ><input
+                class="form-control mb-2"
+                id="supervisorUsername"
+                name="username"
+                autocomplete="username"
+                required
+              />
+              <label class="form-label small">Password</label
+              ><input
+                type="password"
+                class="form-control"
+                id="supervisorPassword"
+                name="password"
+                autocomplete="current-password"
+                required
+              />
+              <div class="text-danger small mt-2" id="supervisorError"></div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel</button
+              ><button class="btn btn-primary" type="submit">Authorize</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- End of Shift: ONE stepped wizard (2026-10-21 improvement build).
+         Count, Deposit and Review are panes inside this single modal --
+         no stacked modals. The panes keep the original field ids so the
+         server contract and validations are unchanged. -->
+    <div class="modal fade" id="shiftWizardModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">End Shift</h5>
+            <button
+              class="btn-close"
+              type="button"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="wizard-steps" id="shiftWizardSteps">
+            <span class="wizard-step is-active" data-wstep="1">1 · Cash Count</span>
+            <span class="wizard-step" data-wstep="2">2 · Cash Deposit</span>
+            <span class="wizard-step" data-wstep="3">3 · Review &amp; Confirm</span>
+          </div>
+
+          <!-- Step 1: cash count -->
+          <div class="wizard-pane" id="shiftPaneCount">
+            <div class="modal-body">
+              <div class="alert alert-light border mb-3">
+                <div class="small text-muted">Expected cash</div>
+                <strong class="shift-giant" id="shiftExpectedCash">₱0.00</strong>
+              </div>
+              <label class="form-label" for="shiftActualCash"
+                >Actual cash counted</label
+              >
+              <div class="input-group input-group-lg mb-2">
+                <span class="input-group-text">₱</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  class="form-control"
+                  id="shiftActualCash"
+                  inputmode="decimal"
+                  placeholder="0.00"
+                  autocomplete="off"
+                />
+              </div>
+              <div class="d-flex justify-content-between align-items-baseline mb-2">
+                <span class="small text-muted">Difference</span>
+                <strong class="fs-4" id="shiftDifference">₱0.00</strong>
+              </div>
+              <div id="shiftHeldBox" class="d-none">
+                <div class="alert alert-warning py-2">
+                  <div class="fw-semibold small mb-1">
+                    Held transactions (<span id="shiftHeldCount">0</span>)
+                  </div>
+                  <ul class="small mb-0 ps-3" id="shiftHeldList"></ul>
+                  <div class="small mt-1">
+                    Resolve them (F7) or have a supervisor approve closing with
+                    them held.
+                  </div>
+                </div>
+              </div>
+              <div id="shiftSupervisorBox">
+                <div class="alert alert-danger py-2 mb-2">
+                  <span class="small fw-semibold"
+                    >Supervisor / Admin authorization — required to close the
+                    shift.</span
+                  ><br />
+                  <span class="small" id="shiftSupervisorHint"></span>
+                </div>
+                <label class="form-label" for="shiftSupUser"
+                  >Supervisor / Administrator Username</label
+                >
+                <input
+                  class="form-control mb-2"
+                  id="shiftSupUser"
+                  autocomplete="off"
+                />
+                <label class="form-label" for="shiftSupPass">Password</label>
+                <input
+                  type="password"
+                  class="form-control mb-2"
+                  id="shiftSupPass"
+                />
+              </div>
+              <label class="form-label" for="shiftClosingNotes"
+                >Closing notes
+                <span class="text-muted">(required when the difference is not
+                  zero)</span
+                ></label
+              >
+              <input
+                class="form-control"
+                id="shiftClosingNotes"
+                maxlength="255"
+                placeholder="Explain any shortage or overage"
+              />
+              <div class="text-danger small mt-2" id="shiftCountError"></div>
+            </div>
+          </div>
+
+          <!-- Step 2: cash deposit -->
+          <div class="wizard-pane d-none" id="shiftPaneDeposit">
+            <div class="modal-body">
+              <div class="alert alert-light border mb-3">
+                <div class="small text-muted">
+                  Cash counted — from the count step, not typed
+                </div>
+                <strong class="shift-giant" id="shiftDepositCounted">₱0.00</strong>
+              </div>
+              <div class="alert alert-info py-2 small">
+                <strong>Deposit reference:</strong> generated automatically
+                when you confirm the close (format
+                <strong>DEP-YYYYMMDD-####</strong>) and printed on the report
+                and the deposit slip. It is unique to this shift and can
+                never be duplicated.
+              </div>
+              <label class="form-label" for="shiftBagNo"
+                >Bag label / no. <span class="text-muted">(the physical bag's number)</span></label
+              >
+              <input
+                class="form-control mb-2"
+                id="shiftBagNo"
+                maxlength="50"
+                autocomplete="off"
+                placeholder="e.g. OR-0147"
+              />
+              <label class="form-label" for="shiftSealedAmount"
+                >Amount sealed in bag</label
+              >
+              <div class="input-group mb-2">
+                <span class="input-group-text">₱</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  class="form-control"
+                  id="shiftSealedAmount"
+                  inputmode="decimal"
+                  autocomplete="off"
+                />
+              </div>
+              <div class="form-check mb-2">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="shiftVerifierSame"
+                />
+                <label class="form-check-label" for="shiftVerifierSame">
+                  The verifier is the Supervisor / Administrator who
+                  authorized this close
+                </label>
+              </div>
+              <div id="shiftVerifierFields">
+                <label class="form-label" for="shiftVerifierUser"
+                  >Verified by — other staff / supervisor username</label
+                >
+                <input
+                  class="form-control mb-2"
+                  id="shiftVerifierUser"
+                  autocomplete="off"
+                />
+                <label class="form-label" for="shiftVerifierPass">Password</label>
+                <input
+                  type="password"
+                  class="form-control mb-2"
+                  id="shiftVerifierPass"
+                />
+              </div>
+              <label class="form-label" for="shiftVerifiedAmount"
+                >Amount on verifier's count</label
+              >
+              <div class="input-group mb-2">
+                <span class="input-group-text">₱</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  class="form-control"
+                  id="shiftVerifiedAmount"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  placeholder="0.00"
+                />
+              </div>
+              <div class="small text-muted">
+                A difference between the sealed amount and the verifier's count
+                is recorded on the shift. It does not block closing.
+              </div>
+              <div class="text-danger small mt-2" id="shiftDepositError"></div>
+            </div>
+          </div>
+
+          <!-- Step 3: review & confirm -->
+          <div class="wizard-pane d-none" id="shiftPaneReview">
+            <div class="modal-body" id="shiftSummaryContent"></div>
+            <div class="px-3 pb-2 text-danger small" id="shiftSummaryError"></div>
+          </div>
+
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary me-auto"
+              data-bs-dismiss="modal"
+              id="btnWizardCancel"
+            >
+              Cancel <kbd>Esc</kbd>
+            </button>
+            <button type="button" class="btn btn-secondary d-none" id="btnWizardBack">
+              Back</button
+            ><button type="button" class="btn btn-primary" id="btnWizardNext">
+              Continue
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- End of Shift: printable report. Static backdrop: the shift is
+         closed, so the cashier must not land back on the sales screen with
+         a closed shift. Exits are explicit: Print Report, Print Deposit
+         Slip, Done (start a new shift at the opening-cash gate), or Log
+         Out. Logout is optional — it is never forced. -->
+    <div
+      class="modal fade"
+      id="shiftReportModal"
+      tabindex="-1"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header no-print">
+            <h5 class="modal-title">End-of-Shift Report</h5>
+          </div>
+          <div class="modal-body">
+            <div class="print-area" id="shiftReportContent"></div>
+          </div>
+          <div class="modal-footer no-print">
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="btnPrintShiftReport"
+            >
+              <i class="bi bi-printer"></i> Print Report</button
+            ><button
+              type="button"
+              class="btn btn-outline-primary"
+              id="btnPrintDepositSlip"
+            >
+              <i class="bi bi-printer"></i> Print Deposit Slip</button
+            ><span class="flex-grow-1"></span
+            ><button type="button" class="btn btn-success" id="btnShiftNewShift">
+              Done — Start New Shift</button
+            ><button type="button" class="btn btn-secondary" id="btnShiftDone">
+              Log Out
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deposit slip print area: hidden on screen; shown alone when
+         printing via the Print Deposit Slip button (body.printing-slip). -->
+    <div id="depositSlipArea"><div id="depositSlipContent"></div></div>
+
+    <!-- Cash Lift -->
+    <div class="modal fade" id="cashLiftModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="cashLiftForm">
+            <div class="modal-header">
+              <h5 class="modal-title">Cash Lift</h5>
+              <button
+                class="btn-close"
+                type="button"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div class="alert alert-light border">
+                <div class="small text-muted">Expected cash</div>
+                <strong class="fs-4" id="cashLiftExpected">₱0.00</strong>
+              </div>
+              <label class="form-label">Lift Amount</label
+              ><input
+                type="number"
+                min="0.01"
+                step="0.01"
+                class="form-control form-control-lg mb-2"
+                id="cashLiftAmount"
+                required
+              />
+              <label class="form-label"
+                >Supervisor / Administrator Username</label
+              ><input
+                class="form-control mb-2"
+                id="cashLiftUsername"
+                required
+              />
+              <label class="form-label">Password</label
+              ><input
+                type="password"
+                class="form-control mb-2"
+                id="cashLiftPassword"
+                required
+              />
+              <label class="form-label">Notes</label
+              ><input
+                class="form-control"
+                id="cashLiftNotes"
+                value="Cash lift"
+              />
+              <div class="text-danger small mt-2" id="cashLiftError"></div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel</button
+              ><button class="btn btn-danger" type="submit">
+                Record Cash Lift
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Receipt -->
+    <div class="modal fade" id="receiptModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body" id="receiptContent"></div>
+          <div class="modal-footer no-print">
+            <button class="btn btn-primary" id="btnPrintReceipt">
+              PRINT RECEIPT</button
+            ><button class="btn btn-secondary" data-bs-dismiss="modal">
+              NEW TRANSACTION
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Discount (Ctrl+Shift+D) -->
+    <div class="modal fade" id="discountModal" tabindex="-1">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <form id="discountForm">
+            <div class="modal-header">
+              <h5 class="modal-title">
+                Discount
+              </h5>
+              <button
+                class="btn-close"
+                type="button"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <label class="form-label small" for="discountModalSelect"
+                >Discount Type</label
+              >
+              <select class="form-select" id="discountModalSelect"></select>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">Apply</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help / shortcut map (F1) -->
+    <div class="modal fade" id="helpModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              Keyboard Shortcuts
+            </h5>
+            <button
+              class="btn-close"
+              type="button"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <div class="fw-semibold mb-1">Common flows</div>
+              <ul class="small mb-0 ps-3">
+                <li>
+                  Exact cash: <kbd>F9</kbd> → <kbd>Enter</kbd> →
+                  <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.
+                </li>
+                <li>
+                  Split payment: add cash, press <kbd>Alt</kbd>+<kbd>1</kbd>–<kbd>4</kbd>
+                  to switch method, <kbd>Enter</kbd> to add each line.
+                </li>
+                <li>
+                  Lowering a line's quantity needs supervisor approval.
+                </li>
+              </ul>
+            </div>
+            <table class="table table-sm align-middle mb-0">
+              <tbody>
+                <tr>
+                  <td style="width: 220px"><kbd>Enter</kbd></td>
+                  <td>
+                    Qty first: Enter in Qty moves to barcode, Enter on barcode
+                    scans
+                  </td>
+                </tr>
+                <tr>
+                  <td><kbd>F1</kbd></td>
+                  <td>This help</td>
+                </tr>
+                <tr>
+                  <td><kbd>F2</kbd></td>
+                  <td>Product list / lookup</td>
+                </tr>
+                <tr>
+                  <td><kbd>F3</kbd></td>
+                  <td>New sale</td>
+                </tr>
+                <tr>
+                  <td><kbd>F4</kbd></td>
+                  <td>Customer / Suki / AR</td>
+                </tr>
+                <tr>
+                  <td><kbd>F5</kbd></td>
+                  <td>Reprint last receipt</td>
+                </tr>
+                <tr>
+                  <td><kbd>F6</kbd></td>
+                  <td>Hold transaction</td>
+                </tr>
+                <tr>
+                  <td><kbd>F7</kbd></td>
+                  <td>Resume held transaction</td>
+                </tr>
+                <tr>
+                  <td><kbd>F8</kbd></td>
+                  <td>Cash Float (Cash Lift needs supervisor)</td>
+                </tr>
+                <tr>
+                  <td><kbd>F9</kbd> / <kbd>Ctrl</kbd>+<kbd>Enter</kbd></td>
+                  <td>Tender / payment</td>
+                </tr>
+                <tr>
+                  <td><kbd>F10</kbd> / <kbd>Del</kbd></td>
+                  <td>Remove selected line (supervisor approval)</td>
+                </tr>
+                <tr>
+                  <td><kbd>F12</kbd></td>
+                  <td>Void current sale (supervisor approval)</td>
+                </tr>
+                <tr>
+                  <td><kbd>↑</kbd> <kbd>↓</kbd></td>
+                  <td>Move selected cart line</td>
+                </tr>
+                <tr>
+                  <td><kbd>↑</kbd> <kbd>↓</kbd></td>
+                  <td>
+                    Move between rows in Product List, Customer list, and
+                    Held list, and between cart qty boxes — no Tab needed
+                  </td>
+                </tr>
+                <tr>
+                  <td><kbd>+</kbd> <kbd>-</kbd></td>
+                  <td>
+                    Quantity +1 / −1 on selected line (decreasing needs
+                    supervisor approval)
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd>
+                  </td>
+                  <td>Discount</td>
+                </tr>
+                <tr>
+                  <td>
+                    <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd>
+                  </td>
+                  <td>Cash Float</td>
+                </tr>
+                <tr>
+                  <td>
+                    <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd>
+                  </td>
+                  <td>End shift (cash count → review → close)</td>
+                </tr>
+                <tr>
+                  <td><kbd>Alt</kbd>+<kbd>1</kbd>–<kbd>n</kbd></td>
+                  <td>Tender payment methods</td>
+                </tr>
+                <tr>
+                  <td><kbd>Esc</kbd></td>
+                  <td>Close dialog, otherwise focus quantity input</td>
+                </tr>
+                <tr>
+                  <td><kbd>/</kbd></td>
+                  <td>Focus quantity input</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.7.7/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script type="module">
+      import { checkAuth } from "./modules/auth.js";
+      import {
+        initPos,
+        tickHeaderClock,
+        requestLogout,
+      } from "./modules/pos.js?v=phase1-redesign-1";
+      import { initReports } from "./modules/reports.js";
+      import {
+        initActivityFeed,
+        initActivityPage,
+        displayActivityLog,
+        markActivitySeen,
+      } from "./modules/activityFeed.js";
+
+      const initializedSections = new Set();
+      let currentSection = "pos";
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        const session = await checkAuth(["Cashier"]);
+        if (!session) return;
+
+        document.getElementById("cashierName").textContent =
+          session.display_name;
+        tickHeaderClock();
+        setInterval(tickHeaderClock, 1000);
+        document
+          .getElementById("logoutBtn")
+          .addEventListener("click", requestLogout);
+
+        document
+          .getElementById("navReportsBtn")
+          .addEventListener("click", () => {
+            const showingReports = !document
+              .getElementById("section-reports")
+              .classList.contains("d-none");
+            showSection(showingReports ? "pos" : "reports");
+            document.getElementById("navReportsBtn").innerHTML =
+              showingReports
+                ? '<i class="bi bi-bar-chart"></i> Reports'
+                : '<i class="bi bi-cart-check"></i> Cashier';
+          });
+
+        await initPos();
+        initActivityFeed({
+          employeeId: session.employee_id,
+          onNew: () => {
+            if (currentSection === "activity") displayActivityLog();
+          },
+        });
+      });
+
+      function showSection(name) {
+        currentSection = name;
+        document
+          .querySelectorAll(".content-section")
+          .forEach((s) => s.classList.add("d-none"));
+        document.getElementById(`section-${name}`).classList.remove("d-none");
+
+        if (name === "activity") markActivitySeen();
+        if (!initializedSections.has(name)) {
+          if (name === "reports") initReports("cashierReports");
+          if (name === "activity") initActivityPage();
+          initializedSections.add(name);
+        } else if (name === "activity") {
+          displayActivityLog();
+        }
+      }
+    </script>
+  
+</body>
+</html>

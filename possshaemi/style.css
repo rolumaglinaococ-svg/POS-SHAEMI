@@ -1,0 +1,2115 @@
+/* style.css
+   Simple, professional POS admin look.
+   No glassmorphism, no heavy gradients, no flashy animation. */
+
+:root {
+    --sidebar-width: 240px;
+    --brand-color: #1f4e8c;
+    --brand-color-dark: #163a68;
+    --bg-light: #f4f6f9;
+    /* Direction A palette: restrained, professional */
+    --pos-ink: #16191d;
+    --pos-muted: #6b7280;
+    --pos-hairline: #e6e8eb;
+    --pos-green: #198754;
+    --pos-danger: #dc3545;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    background-color: var(--bg-light);
+    color: #2b2f38;
+}
+
+/* ================= SIDEBAR ================= */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background-color: var(--brand-color-dark);
+    color: #fff;
+    overflow-y: auto;
+    z-index: 1000;
+    transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.sidebar-nav {
+    padding: 10px 0;
+}
+
+.sidebar-nav .nav-link {
+    color: rgba(255,255,255,0.85);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.92rem;
+    border-left: 3px solid transparent;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.sidebar-nav .nav-link:hover {
+    background-color: rgba(255,255,255,0.08);
+    color: #fff;
+}
+
+.sidebar-nav .nav-link.active {
+    background-color: rgba(255,255,255,0.14);
+    border-left-color: #ffffff;
+    color: #fff;
+    font-weight: 600;
+}
+
+/* ================= MAIN CONTENT ================= */
+.main-content {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+}
+
+.topbar {
+    background-color: #fff;
+    border-bottom: 1px solid #e3e6ea;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 900;
+}
+
+/* ================= CARDS ================= */
+.card {
+    border: 1px solid #e3e6ea;
+    border-radius: 8px;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.dashboard-card {
+    background-color: #fff;
+    border-radius: 8px;
+    border: 1px solid #e3e6ea;
+    padding: 18px 20px;
+    height: 100%;
+}
+
+.dashboard-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    transform: translateY(-2px);
+}
+
+.dashboard-card .metric-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.dashboard-card .metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--brand-color);
+}
+
+.dashboard-card .metric-icon {
+    font-size: 1.6rem;
+    color: var(--brand-color);
+    opacity: 0.75;
+}
+
+/* ================= TABLE ================= */
+.table-hover tbody tr {
+    transition: background-color 0.1s ease;
+}
+
+.table thead th {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #6c757d;
+    border-bottom-width: 1px;
+}
+
+.table td, .table th {
+    vertical-align: middle;
+}
+
+/* ================= BUTTONS ================= */
+.btn-primary {
+    background-color: var(--brand-color);
+    border-color: var(--brand-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--brand-color-dark);
+    border-color: var(--brand-color-dark);
+}
+
+.btn-action {
+    padding: 3px 8px;
+    font-size: 0.8rem;
+}
+
+/* ================= MODAL ================= */
+.modal.fade .modal-dialog {
+    transition: transform 0.2s ease-out;
+}
+
+/* ================= SECTIONS ================= */
+.content-section {
+    animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 767.98px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    .main-content {
+        margin-left: 0;
+    }
+}
+
+/* ================= POS RECEIPT (cashier.html) ================= */
+.receipt {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.85rem;
+}
+
+.receipt table {
+    border-collapse: collapse;
+}
+
+.receipt hr {
+    border-top: 1px dashed #999;
+}
+
+/* Printing a receipt only prints the receipt itself, not the whole page/sidebar/modal chrome. */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #receiptContent, #receiptContent * {
+        visibility: visible;
+    }
+    #receiptContent {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+    .no-print {
+        display: none !important;
+    }
+}
+
+/* ================= ID COLUMN ================= */
+.table th:first-child,
+.table td:first-child {
+    width: 70px;
+    white-space: nowrap;
+    text-align: center;
+}
+/* ================= CASHIER POS REDESIGN ================= */
+.cashier-page {
+    background: #ffffff;
+}
+
+/* Phase 1: qty box beside the barcode input */
+.pos-qty-input {
+    width: 80px;
+}
+
+/* (fn button base styles live in the compact section below) */
+
+.pos-main-card,
+.pos-checkout-card,
+.cash-drawer-card {
+    border: 1px solid #dfe3e8;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+.pos-cart-wrap {
+    min-height: 48vh;
+    max-height: 58vh;
+    overflow-y: auto;
+}
+
+.pos-cart-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+.pos-cart-table tbody tr {
+    cursor: default;
+}
+
+.pos-cart-table .cart-qty {
+    min-width: 48px;
+}
+
+.keyboard-hint {
+    color: #6c757d;
+    font-size: .875rem;
+}
+
+.keyboard-hint kbd,
+.btn kbd {
+    font-size: .75rem;
+    padding: .12rem .3rem;
+    border: 1px solid #ced4da;
+    background: #f8f9fa;
+    color: #495057;
+}
+
+.total-due-box {
+    margin-top: .75rem;
+    padding: .75rem 1rem;
+    border: 1px solid #d7dce2;
+    border-radius: .5rem;
+    background: #f8f9fa;
+}
+
+.total-due-value {
+    font-size: clamp(2.3rem, 5vw, 3.7rem);
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: -.04em;
+}
+
+.selected-customer-panel {
+    border: 1px solid #cfe2ff;
+    background: #f5f9ff;
+    border-radius: .5rem;
+    padding: .65rem .75rem;
+}
+
+.drawer-stat,
+.drawer-total {
+    display: flex;
+    justify-content: space-between;
+    padding: .4rem 0;
+    border-bottom: 1px solid #edf0f2;
+}
+
+.drawer-total {
+    border-bottom: 0;
+    padding-top: .65rem;
+    font-size: 1.05rem;
+}
+
+.drawer-total strong {
+    font-size: 1.35rem;
+}
+
+.report-payment-card {
+    height: 100%;
+    padding: 1.15rem;
+    border: 1px solid #dfe3e8;
+    border-radius: .6rem;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, .05);
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.report-payment-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 14px rgba(16, 24, 40, .10);
+}
+
+.report-payment-value {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: .25rem 0;
+}
+
+/* Shared report layout: filters remain compact on desktop and stack cleanly on phones. */
+#cashierReports > :first-child, #administratorReports > :first-child {
+    padding: 1rem 1.15rem;
+    border: 1px solid #dfe3e8;
+    border-radius: .75rem;
+    background: linear-gradient(135deg, #fff, #f4f8ff);
+}
+
+#cashierReports .card, #administratorReports .card {
+    border-color: #e3e8ef;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+}
+
+/* AR Charges now belongs to the payment-method grid; retain only the
+   operational AR-collections note below it to avoid showing the same amount twice. */
+#cashierReports .row:has([data-ar-sales]) > :first-child,
+#administratorReports .row:has([data-ar-sales]) > :first-child {
+    display: none;
+}
+
+#cashierReports .row:has([data-ar-sales]) > :last-child,
+#administratorReports .row:has([data-ar-sales]) > :last-child {
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+@media (max-width: 767.98px) {
+    #cashierReports [data-period], #cashierReports [data-from], #cashierReports [data-to],
+    #administratorReports [data-period], #administratorReports [data-from], #administratorReports [data-to] {
+        width: 100%;
+    }
+}
+
+@media (max-width: 1199.98px) {
+    .pos-cart-wrap {
+        max-height: 46vh;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .pos-cart-wrap {
+        min-height: 35vh;
+        max-height: 45vh;
+    }
+    .total-due-value {
+        font-size: 2.5rem;
+    }
+}
+
+/* AR Manager: print / save-as-PDF shows only the report area */
+@media print {
+    body * { visibility: hidden; }
+    .print-area, .print-area * { visibility: visible; }
+    .print-area { position: absolute; left: 0; top: 0; width: 100%; }
+    .no-print { display: none !important; }
+}
+
+/* ================= COMPACT VIEWPORT LAYOUT (no page scroll) =================
+   The whole sales screen fits one viewport: the page shell is a 100vh flex
+   column with overflow hidden; only the cart list scrolls internally. */
+html,
+body.cashier-page {
+    height: 100%;
+}
+
+body.cashier-page {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+body.cashier-page > header {
+    flex: 0 0 auto;
+}
+
+/* main wraps the pos + reports sections */
+.pos-main {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Sales view: flex column filling the viewport, never page-scrolls.
+   :not(.d-none) keeps Bootstrap's d-none toggle working (id beats class). */
+#section-pos:not(.d-none) {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Reports / activity views keep their own internal scroll when shown. */
+#section-reports:not(.d-none),
+#section-activity:not(.d-none) {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+/* Main cart + totals row takes all remaining height; columns stay side by
+   side at every width so the layout never stacks and clips. */
+.pos-main-row {
+    flex: 1 1 auto;
+    min-height: 0;
+    flex-wrap: nowrap;
+}
+
+.pos-main-row > .pos-cart-col,
+.pos-main-row > .pos-sidepanel {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.pos-main-row > .pos-cart-col {
+    flex: 1 1 auto;
+}
+
+.pos-main-row > .pos-sidepanel {
+    flex: 0 0 260px;
+    border-left: 1px solid var(--pos-hairline);
+    background: #fff;
+    overflow-y: auto;
+}
+
+/* Cart card: the ONLY scrolling region on the sales screen. */
+.pos-main-card {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.pos-cart-wrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+}
+
+/* Dense cart rows */
+.pos-cart-table td,
+.pos-cart-table th {
+    padding: .42rem .6rem;
+    font-size: .875rem;
+}
+
+.pos-cart-table .cart-qty {
+    min-width: 40px;
+    padding-left: .25rem;
+    padding-right: .25rem;
+}
+
+/* Totals rail: fixed, compact, never scrolls */
+.pos-checkout-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.pos-checkout-card .card-body {
+    overflow-y: auto;
+}
+
+.pos-checkout-card .form-label {
+    margin-bottom: .15rem;
+    font-size: .875rem;
+}
+
+.pos-checkout-card .form-select-sm {
+    font-size: .875rem;
+    padding-top: .2rem;
+    padding-bottom: .2rem;
+}
+
+.pos-checkout-card .total-due-box {
+    margin-top: .3rem;
+    padding: .35rem .6rem;
+}
+
+.pos-checkout-card .total-due-value {
+    font-size: clamp(1.9rem, 3.4vw, 2.7rem);
+}
+
+.pos-checkout-card .change-box {
+    padding: .35rem .6rem;
+}
+
+.pos-checkout-card .change-box strong {
+    font-size: 1.2rem;
+}
+
+.pos-checkout-card .selected-customer-panel {
+    padding: .4rem .55rem;
+    font-size: .875rem;
+}
+
+.pos-checkout-card .payment-summary-box strong {
+    font-size: .875rem;
+}
+
+/* Key-first function-key buttons: the shortcut key is the primary label. */
+.fn-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .35rem .6rem;
+    font-size: .875rem;
+    line-height: 1.25;
+    white-space: nowrap;
+}
+
+.fn-key {
+    display: inline-block;
+    font-weight: 800;
+    font-size: 1rem;
+    line-height: 1;
+    padding: .3rem .45rem;
+    border-radius: .35rem;
+    background: #eef1f4;
+    border: 1px solid #d4d9de;
+    color: #212529;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.fn-label {
+    font-size: .875rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* On solid buttons the key chip inverts to stay legible. */
+.btn-success .fn-key {
+    background: rgba(255, 255, 255, .2);
+    border-color: rgba(255, 255, 255, .4);
+    color: #fff;
+}
+
+/* Primary inputs sit at the "primary input" step of the type scale. */
+#posBarcodeInput,
+#posQtyInput {
+    font-size: 1.25rem;
+}
+
+/* Consolidated totals readout block */
+.totals-readout {
+    border: 1px solid #e3e6ea;
+    border-radius: .5rem;
+    padding: .35rem .65rem;
+    background: #fff;
+}
+
+.totals-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: .18rem 0;
+    font-size: .875rem;
+}
+
+.totals-row + .totals-row {
+    border-top: 1px solid #f1f3f5;
+}
+
+.totals-row strong {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Slim status strip (held count + drawer summary) */
+.pos-status-strip {
+    background: #fff;
+    font-size: .875rem;
+}
+
+.pos-status-strip .btn-link {
+    font-size: .875rem;
+    text-decoration: none;
+}
+
+.pos-status-strip kbd {
+    font-size: .75rem;
+}
+
+/* Tender console */
+.tender-giant {
+    font-size: 2.6rem;
+    font-weight: 800;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+}
+.tender-amount {
+    width: 170px;
+    font-size: 1.35rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+.tender-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+}
+.tender-pill-key {
+    font-size: .75rem;
+    opacity: .65;
+    font-weight: 400;
+}
+#paymentRows {
+    max-height: 190px;
+    overflow-y: auto;
+}
+.tender-line {
+    cursor: pointer;
+}
+.tender-line-selected {
+    background-color: var(--bs-primary-bg-subtle, #e7f1ff);
+    border-color: var(--bs-primary) !important;
+}
+
+/* ================= Direction A ("Command Bar") — minimalist professional =================
+   Palette: white / ink #16191d / muted #6b7280 / hairline #e6e8eb.
+   No gradients, no heavy shadows. Hairline dividers, 8px rhythm. */
+
+body.cashier-page {
+    color: var(--pos-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Header */
+.pos-wordmark {
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.01em;
+    color: var(--pos-ink);
+}
+
+.pos-clock {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--pos-ink);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* Command bar */
+.pos-commandbar {
+    border-bottom: 1px solid var(--pos-hairline);
+}
+
+.pos-command-total-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--pos-muted);
+    font-weight: 600;
+}
+
+.pos-command-total-value {
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--pos-ink);
+    white-space: nowrap;
+}
+
+.pos-scan-message {
+    min-height: 1.4rem;
+    padding-top: 0.15rem;
+}
+
+/* The barcode input is the screen's primary action: crisp 2px blue ring. */
+#posBarcodeInput:focus {
+    border-color: #0d6efd;
+    box-shadow:
+        0 0 0 2px #fff,
+        0 0 0 4px rgba(13, 110, 253, 0.45);
+}
+
+/* Right panel */
+.pos-sidepanel-form {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.pos-panel-block {
+    padding: 0.75rem 1rem;
+}
+
+.pos-panel-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--pos-muted);
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+
+.pos-hr {
+    margin: 0;
+    border: 0;
+    border-top: 1px solid var(--pos-hairline);
+}
+
+#panelCustomerName,
+#panelDiscountName {
+    font-size: 0.95rem;
+}
+
+/* Cart: simple selected-row highlight (blue), distinct from hover. */
+.pos-cart-table tbody tr.table-primary {
+    --bs-table-bg: #cfe2ff;
+    --bs-table-hover-bg: #b8d4ff;
+}
+
+/* Money everywhere uses tabular numerals (inherits from body, belt-and-braces). */
+.pos-cart-table td,
+.totals-row strong {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Visible press feedback on function keys. */
+.fn-btn:active {
+    transform: translateY(1px);
+}
+
+/* Held-count badge tucked into the F7 chip. */
+#heldCountBadge {
+    font-size: 0.65rem;
+    padding: 0.15em 0.45em;
+}
+
+/* ================= END OF SHIFT ================= */
+.shift-giant {
+    font-size: clamp(1.9rem, 3.4vw, 2.7rem);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+}
+#shiftReportContent h6 {
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+}
+#shiftReportContent .table {
+    margin-bottom: 0.75rem;
+}
+
+/* ================= ADMIN DESIGN SYSTEM =================
+   Scoped to body.admin-page (index.html only). Cashier and Manager
+   styles above are intentionally left untouched. */
+
+body.admin-page {
+    background-color: #e9edf1;
+    color: var(--pos-ink);
+    font-size: 0.925rem;
+}
+
+/* ---- Centered, constrained shell: sidebar + topbar + content align ---- */
+body.admin-page .admin-shell {
+    display: flex;
+    align-items: stretch;
+    max-width: 1480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background-color: #fff;
+    box-shadow: 0 0 24px rgba(16, 24, 40, 0.06);
+}
+
+/* ---- Sidebar (sticky inside the shell on desktop) ---- */
+body.admin-page .sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    flex: 0 0 248px;
+    transform: none;
+}
+
+body.admin-page .sidebar-header {
+    padding: 16px 20px;
+    font-size: 1rem;
+}
+
+body.admin-page .nav-group-label {
+    padding: 14px 20px 4px;
+    font-size: 0.66rem;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: rgba(255, 255, 255, 0.48);
+    font-weight: 600;
+}
+
+body.admin-page .sidebar-nav .nav-link {
+    padding: 8px 20px;
+    font-size: 0.88rem;
+}
+
+/* ---- Main column ---- */
+body.admin-page .main-content {
+    margin-left: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+    background-color: #f4f6f9;
+}
+
+body.admin-page .topbar {
+    padding: 12px 28px;
+    gap: 12px;
+}
+
+body.admin-page #pageTitle {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--pos-ink);
+}
+
+body.admin-page .topbar-user {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+body.admin-page .topbar-user-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--pos-ink);
+    line-height: 1.2;
+    text-align: right;
+}
+
+body.admin-page .topbar-user-role {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--pos-muted);
+    font-weight: 400;
+}
+
+body.admin-page main {
+    padding: 24px 28px !important;
+    max-width: 1240px;
+}
+
+body.admin-page .content-section {
+    animation: none;
+}
+
+/* ---- Standard toolbar: primary action left, search + filters right ---- */
+body.admin-page .admin-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+body.admin-page .admin-toolbar-filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-left: auto;
+}
+
+body.admin-page .admin-toolbar .admin-search {
+    width: 260px;
+}
+
+body.admin-page .admin-toolbar .form-select {
+    width: auto;
+}
+
+body.admin-page .report-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+/* ---- Tables ---- */
+body.admin-page .data-card {
+    background: #fff;
+    border: 1px solid #e3e6ea;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+body.admin-page .data-card .table {
+    margin-bottom: 0;
+    font-size: 0.85rem;
+}
+
+/* Neutralize the legacy "ID column" rule for admin tables; widths come from colgroups. */
+body.admin-page .table th:first-child,
+body.admin-page .table td:first-child {
+    width: auto;
+    text-align: left;
+    white-space: normal;
+}
+
+body.admin-page .table thead th {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--pos-muted);
+    font-weight: 600;
+    background-color: #fafbfc;
+    border-bottom: 1px solid #e3e6ea;
+    padding: 9px 12px;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+body.admin-page .table tbody td {
+    padding: 9px 12px;
+    border-top: 1px solid #eef1f4;
+    vertical-align: middle;
+}
+
+body.admin-page .table-hover tbody tr:hover {
+    background-color: #f6f9fd;
+}
+
+/* Numeric / money columns: right-aligned, tabular numerals. */
+body.admin-page .table .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+body.admin-page .table .btn-action {
+    padding: 4px 8px;
+    font-size: 0.78rem;
+}
+
+/* ---- Table footer: record count + page-size + pagination ---- */
+body.admin-page .admin-table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 8px 12px;
+    border-top: 1px solid #e3e6ea;
+    background-color: #fafbfc;
+    font-size: 0.78rem;
+    color: var(--pos-muted);
+}
+
+body.admin-page .admin-pager {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+body.admin-page .admin-pager-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 0.78rem;
+}
+
+body.admin-page .admin-pager .form-select {
+    width: auto;
+    font-size: 0.78rem;
+    padding: 3px 26px 3px 8px;
+}
+
+body.admin-page .admin-page-btn {
+    padding: 3px 8px;
+    font-size: 0.78rem;
+    line-height: 1.4;
+}
+
+body.admin-page .admin-page-info {
+    min-width: 92px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---- Dashboard: KPI strip + panels (replaces the 17 stat cards) ---- */
+body.admin-page .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+body.admin-page .kpi {
+    background: #fff;
+    border: 1px solid #e3e6ea;
+    border-radius: 8px;
+    padding: 14px 16px;
+}
+
+body.admin-page .kpi-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--pos-muted);
+    font-weight: 600;
+}
+
+body.admin-page .kpi-value {
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: var(--pos-ink);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.25;
+}
+
+body.admin-page .kpi-value.is-alert {
+    color: #b45309;
+}
+
+body.admin-page .kpi-sub {
+    font-size: 0.78rem;
+    color: var(--pos-muted);
+}
+
+body.admin-page .panel {
+    background: #fff;
+    border: 1px solid #e3e6ea;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+body.admin-page .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-bottom: 1px solid #eef1f4;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+body.admin-page .panel-body {
+    padding: 6px 14px 12px;
+}
+
+body.admin-page .attention-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid #f1f3f5;
+    font-size: 0.85rem;
+}
+
+body.admin-page .attention-row:last-child {
+    border-bottom: 0;
+}
+
+body.admin-page .admin-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px 24px;
+    margin: 0;
+    padding: 6px 0;
+}
+
+body.admin-page .admin-stats > div {
+    display: flex;
+    justify-content: space-between;
+    padding: 7px 0;
+    border-bottom: 1px solid #f1f3f5;
+    font-size: 0.85rem;
+}
+
+body.admin-page .admin-stats dt {
+    font-weight: 400;
+    color: var(--pos-muted);
+}
+
+body.admin-page .admin-stats dd {
+    margin: 0;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+body.admin-page #dashboardActivity .list-group-item {
+    padding: 9px 14px;
+    font-size: 0.82rem;
+}
+
+/* Neutralize decorative card hovers inside the admin. */
+body.admin-page .dashboard-card:hover,
+body.admin-page .report-payment-card:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* ---- Reports (administrator): flatten to sections, no gradients ----
+   The legacy gradient filter card is replaced by a slim flat header bar. */
+body.admin-page #administratorReports > :first-child {
+    padding: 10px 16px;
+    border: 1px solid #e3e6ea;
+    border-radius: 8px;
+    background: #fff;
+    background-image: none;
+}
+
+body.admin-page #administratorReports .kpi-strip {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+body.admin-page #administratorReports .panel {
+    margin-bottom: 16px;
+}
+
+body.admin-page #administratorReports canvas {
+    max-height: 280px;
+}
+
+/* ---- Forms & modals ---- */
+body.admin-page .form-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #3a3f47;
+    margin-bottom: 4px;
+}
+
+body.admin-page .modal-title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+body.admin-page .modal-header {
+    padding: 12px 16px;
+}
+
+body.admin-page .modal-body {
+    padding: 16px;
+}
+
+body.admin-page .modal-footer {
+    padding: 12px 16px;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 1199.98px) {
+    body.admin-page .admin-shell {
+        padding: 0;
+    }
+    body.admin-page main {
+        padding: 20px !important;
+    }
+    body.admin-page .topbar {
+        padding: 12px 20px;
+    }
+    body.admin-page #administratorReports .kpi-strip {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 991.98px) {
+    body.admin-page .admin-shell {
+        display: block;
+        box-shadow: none;
+    }
+    body.admin-page .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 248px;
+        transform: translateX(-100%);
+        transition: transform 0.2s ease;
+        z-index: 1050;
+    }
+    body.admin-page .sidebar.show {
+        transform: translateX(0);
+    }
+    body.admin-page .kpi-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    body.admin-page .topbar-user-name {
+        display: none;
+    }
+}
+
+@media (max-width: 575.98px) {
+    body.admin-page main {
+        padding: 16px !important;
+    }
+    body.admin-page .admin-toolbar .admin-search {
+        width: 100%;
+    }
+    body.admin-page .admin-toolbar-filters {
+        width: 100%;
+        margin-left: 0;
+    }
+    body.admin-page .admin-table-footer {
+        font-size: 0.75rem;
+    }
+}
+
+body.admin-page .admin-toolbar-filters-start {
+    margin-left: 0;
+    margin-right: auto;
+}
+
+/* ================= ADMIN ROUND 2 (2026-10-18) =================
+   - Full-width shell: the centered 1480px container with side gutters is
+     removed per feedback; the app now uses the full viewport width.
+   - Styled sidebar scrollbar.
+   - Slim summary line used above wide tables (e.g. Sales). */
+
+body.admin-page {
+    background-color: #f4f6f9;
+}
+
+body.admin-page .admin-shell {
+    max-width: none;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* Sidebar scrollbar: thin, subtle, dark-theme aware. */
+body.admin-page .sidebar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+body.admin-page .sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+
+body.admin-page .sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+body.admin-page .sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.22);
+    border-radius: 4px;
+}
+
+body.admin-page .sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+/* Slim meta line between a toolbar and its table. */
+body.admin-page .table-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 0.8rem;
+    color: var(--pos-muted);
+    margin: -4px 2px 10px;
+}
+
+body.admin-page .table-meta strong {
+    color: var(--pos-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+body.admin-page .table-meta-sep {
+    opacity: 0.5;
+}
+
+/* Date / text inputs inside toolbars must not stretch full-width (Bootstrap's
+   .form-control defaults to width:100%, which was forcing the Reports and
+   Sales filters to stack vertically). The search box keeps its fixed width. */
+body.admin-page .admin-toolbar .form-control:not(.admin-search) {
+    width: auto;
+}
+
+/* ================= AR MANAGER REDESIGN (manager.html only) =================
+   Professional, minimalist: white surfaces, hairline borders, one brand
+   blue for primary actions, red reserved for overdue/danger. Scoped to
+   body.manager-page so Admin and Cashier are untouched. */
+body.manager-page {
+    background: #f7f8fa;
+    color: var(--pos-ink);
+}
+body.manager-page .sidebar {
+    background: #ffffff;
+    color: var(--pos-ink);
+    border-right: 1px solid var(--pos-hairline);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
+}
+body.manager-page .sidebar::-webkit-scrollbar { width: 6px; }
+body.manager-page .sidebar::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.18); border-radius: 3px; }
+body.manager-page .sidebar-header {
+    color: var(--pos-ink);
+    border-bottom: 1px solid var(--pos-hairline);
+    font-size: 1rem;
+}
+body.manager-page .sidebar-header .btn {
+    color: var(--pos-muted);
+    border-color: var(--pos-hairline);
+}
+body.manager-page .sidebar-header .btn:hover { color: var(--pos-ink); background: #f1f3f5; }
+body.manager-page .sidebar-nav .nav-link {
+    color: #3c434c;
+    border-left: 3px solid transparent;
+    border-radius: 0 6px 6px 0;
+    margin-right: 10px;
+}
+body.manager-page .sidebar-nav .nav-link:hover { background: #f1f5fb; color: var(--pos-ink); }
+body.manager-page .sidebar-nav .nav-link.active {
+    background: #eaf1fa;
+    border-left-color: var(--brand-color);
+    color: var(--brand-color-dark);
+    font-weight: 600;
+}
+body.manager-page .topbar {
+    background: #ffffff;
+    border-bottom: 1px solid var(--pos-hairline);
+}
+body.manager-page .card {
+    background: #ffffff;
+    border: 1px solid var(--pos-hairline);
+    border-radius: 10px;
+    box-shadow: none;
+}
+body.manager-page .table thead th {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--pos-muted);
+    font-weight: 600;
+    border-bottom: 1px solid var(--pos-hairline);
+    white-space: nowrap;
+}
+body.manager-page .table tbody td {
+    font-variant-numeric: tabular-nums;
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+}
+body.manager-page .table-hover tbody tr:hover { background: #f7fafd; }
+/* Neutralize the legacy fixed-width first-column rule on manager tables. */
+body.manager-page .table th:first-child,
+body.manager-page .table td:first-child {
+    width: auto;
+    text-align: left;
+}
+body.manager-page .form-control,
+body.manager-page .form-select {
+    border-color: #d4d9de;
+    border-radius: 8px;
+}
+body.manager-page .form-control:focus,
+body.manager-page .form-select:focus {
+    border-color: var(--brand-color);
+    box-shadow: 0 0 0 3px rgba(31, 78, 140, 0.14);
+}
+body.manager-page .nav-pills .nav-link { color: #3c434c; border-radius: 8px; }
+body.manager-page .nav-pills .nav-link.active { background: var(--brand-color); color: #fff; }
+/* Filter bars: one aligned row — period controls and the refresh button share a 38px height */
+body.manager-page .ar-period { display: inline-flex; gap: .5rem; align-items: center; flex-wrap: nowrap; }
+body.manager-page .ar-period .form-select,
+body.manager-page .ar-period .form-control { height: 38px; }
+body.manager-page [data-refresh] { height: 38px; min-width: 38px; display: inline-flex; align-items: center; justify-content: center; padding: 0 .55rem; }
+body.manager-page #repFilters { align-items: center; }
+body.manager-page .modal-content { border: none; border-radius: 12px; }
+body.manager-page .modal-header { border-bottom: 1px solid var(--pos-hairline); }
+body.manager-page .modal-footer { border-top: 1px solid var(--pos-hairline); }
+
+/* Record Payment steps */
+body.manager-page .pay-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+body.manager-page .pay-step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--brand-color);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    flex: none;
+}
+
+/* Searchable customer dropdown */
+body.manager-page .combo-wrap { position: relative; }
+body.manager-page .combo-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 1080;
+    max-height: 260px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid var(--pos-hairline);
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.12);
+    padding: 4px;
+}
+body.manager-page .combo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    border-radius: 7px;
+    padding: 8px 10px;
+    font-size: 0.92rem;
+    color: var(--pos-ink);
+}
+body.manager-page .combo-item:hover,
+body.manager-page .combo-item.active { background: #eaf1fa; }
+body.manager-page .combo-item-sub { color: var(--pos-muted); font-size: 0.82rem; white-space: nowrap; }
+body.manager-page .combo-empty { padding: 10px 12px; color: var(--pos-muted); font-size: 0.9rem; }
+
+/* AR payment receipt: print shows only the receipt (cashier-style rule). */
+@media print {
+    body.manager-page * { visibility: hidden; }
+    body.manager-page #arReceiptContent,
+    body.manager-page #arReceiptContent * { visibility: visible; }
+    body.manager-page #arReceiptContent {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+}
+
+/* AR Manager: dark sidebar for contrast (matches Admin) */
+body.manager-page .sidebar {
+    background: var(--brand-color-dark);
+    color: #fff;
+    border-right: none;
+    scrollbar-color: rgba(255,255,255,0.25) transparent;
+}
+body.manager-page .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); }
+body.manager-page .sidebar-header {
+    color: #fff;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+body.manager-page .sidebar-header .btn {
+    color: rgba(255,255,255,0.85);
+    border-color: rgba(255,255,255,0.35);
+}
+body.manager-page .sidebar-header .btn:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.12);
+}
+body.manager-page .sidebar-nav .nav-link { color: rgba(255,255,255,0.85); }
+body.manager-page .sidebar-nav .nav-link:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+}
+body.manager-page .sidebar-nav .nav-link.active {
+    background: rgba(255,255,255,0.14);
+    border-left-color: #fff;
+    color: #fff;
+}
+
+/* ===== Login build (2026-10-21): employee password policy checklist ===== */
+.pw-policy { list-style: none; margin: 8px 0 0; padding: 0; }
+.pw-policy li { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #98a1aa; padding: 2px 0; }
+.pw-policy .pw-mk { width: 16px; height: 16px; flex: none; border: 1.5px solid #cfd6dd; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: transparent; }
+.pw-policy li.ok { color: #2b333c; }
+.pw-policy li.ok .pw-mk { border-color: var(--pos-green, #198754); background: var(--pos-green, #198754); color: #fff; }
+
+/* ================= END-OF-SHIFT RECEIPT + END-DAY (2026-10-21) =================
+   End-of-Shift print is receipt style (thermal, counter printer): the report
+   content uses the existing .receipt presentation, narrowed and centered.
+   End-Day prints A4 from the Admin panel via its own print area. */
+.receipt-shift {
+    max-width: 320px;
+    margin: 0 auto;
+}
+.receipt .receipt-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+.receipt-signatures {
+    margin-top: 14px;
+}
+.receipt-signatures div {
+    margin-bottom: 20px;
+}
+/* Printing from the cashier page shows only the open print area; the shift
+   report joins the existing receipt rule (its modal is display:none when
+   closed, so only the open document prints). */
+@media print {
+    body.cashier-page #shiftReportContent,
+    body.cashier-page #shiftReportContent * {
+        visibility: visible;
+    }
+    body.cashier-page #shiftReportContent {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+}
+/* End-Day A4 print (Admin): only the End-Day print area. */
+#endDayPrintArea {
+    display: none;
+}
+@media print {
+    body.printing-endday #endDayPrintArea,
+    body.printing-endday #endDayPrintArea * {
+        visibility: visible;
+    }
+    body.printing-endday #endDayPrintArea {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+}
+.endday-sig-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    margin-top: 36px;
+}
+.endday-sig-box {
+    border-top: 1px solid #16191d;
+    padding-top: 4px;
+    font-size: 12px;
+    color: #3c434c;
+    text-align: center;
+}
+
+/* ================= END-DAY V2: GATE COUNTER OCCUPANCY ================= */
+#gateOccupancy .gate-occ-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 3px 0;
+    border-bottom: 1px dashed #e2e6ea;
+}
+#gateOccupancy .gate-occ-row:last-child {
+    border-bottom: none;
+}
+
+/* ================= END-SHIFT WIZARD + DEPOSIT SLIP (2026-10-21) =================
+   One stepped modal (Count / Deposit / Review), SweetAlert layering, and
+   the deposit-slip print area. Appended only — nothing above is edited. */
+.wizard-steps {
+    display: flex;
+    gap: 6px;
+    padding: 10px 16px 0;
+}
+.wizard-step {
+    flex: 1;
+    text-align: center;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #8492a6;
+    background: #f1f5f9;
+    border: 1px solid #e2e6ec;
+    border-radius: 999px;
+    padding: 5px 4px;
+}
+.wizard-step.is-active {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+    color: #fff;
+}
+.wizard-step.is-done {
+    background: #e7f6ec;
+    border-color: #bfe6cc;
+    color: #146c2e;
+}
+/* SweetAlert must sit above Bootstrap modals (wizard + report). */
+.swal2-container {
+    z-index: 2000 !important;
+}
+/* Deposit slip: hidden on screen, printed alone in slip mode. */
+#depositSlipArea {
+    display: none;
+}
+@media print {
+    body.printing-slip #depositSlipArea {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+    body.printing-slip #depositSlipArea,
+    body.printing-slip #depositSlipArea * {
+        visibility: visible;
+    }
+    body.cashier-page.printing-slip #shiftReportContent,
+    body.cashier-page.printing-slip #shiftReportContent * {
+        visibility: hidden !important;
+    }
+}
+
+/* ================= MANAGER = ADMIN DESIGN (2026-10-23) =================
+   Brix direction: the AR Manager should look like the Admin shell,
+   especially Audit Logs. The Manager Audit view (modules/managerAudit.js)
+   uses the same component classes as the Admin pages, but those rules
+   were scoped to body.admin-page only — so under body.manager-page the
+   toolbars/cards/pager rendered unstyled (stacked full-width).
+   The block below mirrors the Admin component values under
+   body.manager-page. It is APPEND-ONLY: no Admin rule and no earlier
+   Manager rule is edited; where a selector repeats an earlier Manager
+   rule, the Admin value intentionally wins for shell parity.
+   Within the Manager shell these component classes are used ONLY by the
+   Audit view (grep-verified: managerAr*.js modules use their own
+   ar-* classes; modules/reports.js serves the Admin shell only). */
+
+/* ---- Shell parity: sidebar groups, header, topbar, content rhythm ---- */
+body.manager-page .nav-group-label {
+    padding: 14px 20px 4px;
+    font-size: 0.66rem;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: rgba(255, 255, 255, 0.48);
+    font-weight: 600;
+}
+
+body.manager-page .sidebar-header {
+    padding: 16px 20px;
+    font-size: 1rem;
+}
+
+body.manager-page .sidebar-nav .nav-link {
+    padding: 8px 20px;
+    font-size: 0.88rem;
+    border-radius: 0;
+    margin-right: 0;
+}
+
+body.manager-page {
+    font-size: 0.925rem;
+}
+
+body.manager-page .topbar {
+    padding: 12px 28px;
+    gap: 12px;
+}
+
+body.manager-page #pageTitle {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--pos-ink);
+}
+
+body.manager-page .topbar-user {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+body.manager-page .topbar-user-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--pos-ink);
+    line-height: 1.2;
+    text-align: right;
+}
+
+body.manager-page .topbar-user-role {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--pos-muted);
+    font-weight: 400;
+}
+
+body.manager-page main {
+    padding: 24px 28px !important;
+}
+
+/* ---- Standard toolbar (same values as body.admin-page) ---- */
+body.manager-page .admin-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+body.manager-page .admin-toolbar-filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-left: auto;
+}
+
+body.manager-page .admin-toolbar-filters-start {
+    margin-left: 0;
+    margin-right: auto;
+}
+
+body.manager-page .admin-toolbar .admin-search {
+    width: 260px;
+}
+
+body.manager-page .admin-toolbar .form-select {
+    width: auto;
+}
+
+/* Date / text inputs inside toolbars must not stretch full-width. */
+body.manager-page .admin-toolbar .form-control:not(.admin-search) {
+    width: auto;
+}
+
+/* ---- Tables / data card (same values as body.admin-page) ---- */
+body.manager-page .data-card {
+    background: #fff;
+    border: 1px solid #e3e6ea;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+body.manager-page .data-card .table {
+    margin-bottom: 0;
+    font-size: 0.85rem;
+}
+
+body.manager-page .table th:first-child,
+body.manager-page .table td:first-child {
+    width: auto;
+    text-align: left;
+    white-space: normal;
+}
+
+body.manager-page .table thead th {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--pos-muted);
+    font-weight: 600;
+    background-color: #fafbfc;
+    border-bottom: 1px solid #e3e6ea;
+    padding: 9px 12px;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+body.manager-page .table tbody td {
+    padding: 9px 12px;
+    border-top: 1px solid #eef1f4;
+    vertical-align: middle;
+}
+
+body.manager-page .table-hover tbody tr:hover {
+    background-color: #f6f9fd;
+}
+
+body.manager-page .table .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+body.manager-page .table .btn-action {
+    padding: 4px 8px;
+    font-size: 0.78rem;
+}
+
+/* ---- Table footer: record count + page-size + pagination ---- */
+body.manager-page .admin-table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 8px 12px;
+    border-top: 1px solid #e3e6ea;
+    background-color: #fafbfc;
+    font-size: 0.78rem;
+    color: var(--pos-muted);
+}
+
+body.manager-page .admin-pager {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+body.manager-page .admin-pager-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 0.78rem;
+}
+
+body.manager-page .admin-pager .form-select {
+    width: auto;
+    font-size: 0.78rem;
+    padding: 3px 26px 3px 8px;
+}
+
+body.manager-page .admin-page-btn {
+    padding: 3px 8px;
+    font-size: 0.78rem;
+    line-height: 1.4;
+}
+
+body.manager-page .admin-page-info {
+    min-width: 92px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---- Responsive parity with Admin ---- */
+@media (max-width: 1199.98px) {
+    body.manager-page main {
+        padding: 20px !important;
+    }
+    body.manager-page .topbar {
+        padding: 12px 20px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    body.manager-page .topbar-user-name {
+        display: none;
+    }
+}
+
+@media (max-width: 575.98px) {
+    body.manager-page main {
+        padding: 16px !important;
+    }
+    body.manager-page .admin-toolbar .admin-search {
+        width: 100%;
+    }
+    body.manager-page .admin-toolbar-filters {
+        width: 100%;
+        margin-left: 0;
+    }
+    body.manager-page .admin-table-footer {
+        font-size: 0.75rem;
+    }
+}
+
+/* ================= RESPONSIVE LAYOUT PASS (2026-10-23) =================
+   Append-only. Every fix below was verified in headless Chromium at
+   1440/1280/1024/834/768/390/360 px against possshaemi-10 before changing:
+   1. Admin + Manager .data-card tables were CLIPPED on narrow screens:
+      .data-card{overflow:hidden} (specificity 0,2,1) beats Bootstrap's
+      .table-responsive{overflow-x:auto} (0,1,0), so wide tables lost their
+      rightmost columns with no way to scroll (Products @390px, End-Day
+      @768px, Manager Audit @390px). Restoring horizontal scroll on the
+      combined .table-responsive.data-card element fixes all of them.
+      Desktop rendering is unchanged (no overflow there, nothing scrolls).
+   2. Manager shell on tablet (768-991px): the sidebar stayed fixed 240px
+      wide with its toggle hidden (d-md-none), squeezing content to ~528px
+      at 768px. Manager now follows the Admin pattern: off-canvas sidebar
+      at <=991.98px; the toggle button becomes d-lg-none in manager.html.
+   3. Sidebar backdrop for the off-canvas sidebars (Admin + Manager):
+      tap-outside-to-close. Wired in index.js and manager.html; the
+      backdrop element is inert on desktop (display:none above 991.98px,
+      and the toggle that opens it is hidden there too).
+   4. Admin Reports KPI strip stayed 3-across on phones (~101px tiles, so
+      peso values spilled out of their tiles). Two-across at <=767.98px,
+      and KPI values shrink at <=575.98px.
+   5. Cashier on phones (<=767.98px): the desktop 100vh no-scroll shell
+      physically cannot fit a fixed 260px side panel - the panel was
+      pushed off-screen (page overflow 75-105px), the checkout form was
+      unreachable, and the barcode input was crushed to 44-74px. Below
+      768px the cashier switches to a stacked, page-scrolling layout:
+      barcode on its own row, cart list bounded and internally scrolling,
+      checkout panel full-width below the cart, compact header. At
+      >=768px the one-viewport keyboard-first layout keeps the old rules
+      untouched - no shortcut or workflow changes anywhere.
+   6. Cashier tablet portrait (768-991.98px): side panel slims 260->236px
+      so the cart keeps usable width; layout stays side-by-side.
+   7. Tender modal: giant amounts (PHP 12,345.00 at 2.6rem is ~240px wide)
+      spilled out of their half-width boxes on phones; scaled down at
+      <=575.98px.
+   No business logic, database schema, permissions, or core workflows are
+   touched by this block. */
+
+/* ---- 1. Wide tables scroll inside their card instead of clipping ---- */
+body.admin-page .table-responsive.data-card,
+body.manager-page .table-responsive.data-card {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* ---- 3. Off-canvas sidebar backdrop (Admin + Manager) ---- */
+.sidebar-backdrop {
+    display: none;
+}
+
+@media (max-width: 991.98px) {
+    .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(16, 24, 40, 0.45);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+        z-index: 1045;
+    }
+
+    .sidebar-backdrop.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* ---- 2. Manager: Admin-style off-canvas sidebar ---- */
+    body.manager-page .sidebar {
+        transform: translateX(-100%);
+        z-index: 1055;
+    }
+
+    body.manager-page .sidebar.show {
+        transform: translateX(0);
+        box-shadow: 0 0 32px rgba(16, 24, 40, 0.35);
+    }
+
+    body.manager-page .main-content {
+        margin-left: 0;
+    }
+
+    /* Admin sidebar: same open shadow for parity */
+    body.admin-page .sidebar.show {
+        box-shadow: 0 0 32px rgba(16, 24, 40, 0.35);
+    }
+}
+
+@media print {
+    .sidebar-backdrop {
+        display: none !important;
+    }
+}
+
+/* ---- 4. Admin KPI tiles on small screens ---- */
+@media (max-width: 767.98px) {
+    body.admin-page #administratorReports .kpi-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 575.98px) {
+    body.admin-page .kpi-value {
+        font-size: 1.3rem;
+    }
+}
+
+/* ---- 6. Cashier tablet portrait: slimmer side panel ---- */
+@media (max-width: 991.98px) {
+    .pos-main-row > .pos-sidepanel {
+        flex-basis: 236px;
+    }
+}
+
+/* ---- 5. Cashier stacked layout on phones ---- */
+@media (max-width: 767.98px) {
+    html,
+    body.cashier-page {
+        height: auto;
+    }
+
+    body.cashier-page {
+        min-height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .pos-main {
+        overflow: visible;
+    }
+
+    #section-pos:not(.d-none),
+    #section-reports:not(.d-none),
+    #section-activity:not(.d-none) {
+        overflow: visible;
+    }
+
+    .pos-main-row {
+        flex-wrap: wrap;
+    }
+
+    .pos-main-row > .pos-cart-col {
+        flex: 1 1 100%;
+    }
+
+    .pos-main-row > .pos-sidepanel {
+        flex: 1 1 100%;
+        border-left: 0;
+        border-top: 1px solid var(--pos-hairline);
+        overflow-y: visible;
+    }
+
+    /* Cart list keeps its own bounded scroll so the function bar and
+       checkout panel stay reachable without hunting. */
+    .pos-cart-wrap {
+        min-height: 180px;
+        max-height: 44vh;
+    }
+
+    /* Command bar: barcode gets its own full row; qty, tier and the
+       total share the second row. */
+    .pos-commandbar {
+        flex-wrap: wrap;
+        row-gap: 0.5rem;
+    }
+
+    .pos-commandbar > .flex-grow-1 {
+        flex: 1 1 100%;
+    }
+
+    .pos-command-total {
+        margin-left: auto;
+    }
+
+    .pos-command-total-value {
+        font-size: 1.9rem;
+    }
+
+    /* Header: keep counter, drawer status and the two actions; the clock
+       and cashier name are the first things to go on a phone. */
+    .pos-header {
+        flex-wrap: wrap;
+        row-gap: 0.25rem;
+    }
+
+    .pos-header .pos-clock,
+    .pos-header .small.text-muted {
+        display: none;
+    }
+
+    .fn-btn {
+        padding: 0.35rem 0.45rem;
+    }
+}
+
+/* ---- 7. Tender modal on phones ---- */
+@media (max-width: 575.98px) {
+    .tender-giant {
+        font-size: 1.35rem;
+    }
+
+    .tender-amount {
+        width: 150px;
+    }
+
+    #paymentRows {
+        max-height: 150px;
+    }
+}

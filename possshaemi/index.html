@@ -1,0 +1,2444 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>POS Master File Module</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <link href="style.css" rel="stylesheet" />
+  </head>
+  <body class="admin-page">
+    <div class="admin-shell">
+    <!-- ================= SIDEBAR ================= -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div><i class="bi bi-shop"></i> <span>Store Admin</span></div>
+      </div>
+      <ul class="nav flex-column sidebar-nav">
+        <li class="nav-item">
+          <a class="nav-link active" href="#" data-section="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        </li>
+        <li class="nav-group-label">Catalog</li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="products"><i class="bi bi-box-seam"></i> Products</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="categories"><i class="bi bi-tags"></i> Product Categories</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="units"><i class="bi bi-rulers"></i> Units</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="productPrices"><i class="bi bi-cash-coin"></i> Product Prices</a></li>
+        <li class="nav-group-label">Customers &amp; AR</li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="customers"><i class="bi bi-people"></i> Customers</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="arAccounts"><i class="bi bi-credit-card-2-front"></i> AR Accounts</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="sukiCards"><i class="bi bi-postcard"></i> Suki Cards</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="gcCodes"><i class="bi bi-upc-scan"></i> GC Codes</a></li>
+        <li class="nav-group-label">People</li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="employees"><i class="bi bi-person-badge"></i> Employees</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="roles"><i class="bi bi-shield-check"></i> Roles</a></li>
+        <li class="nav-group-label">Store Setup</li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="priceTiers"><i class="bi bi-layers"></i> Price Tiers</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="creditTerms"><i class="bi bi-calendar-check"></i> Credit Terms</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="discounts"><i class="bi bi-percent"></i> Discounts</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="paymentTypes"><i class="bi bi-wallet2"></i> Payment Types</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="counters"><i class="bi bi-display"></i> Counters</a></li>
+        <li class="nav-group-label">Operations</li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="sales"><i class="bi bi-receipt"></i> Sales</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="reports"><i class="bi bi-bar-chart"></i> Reports</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-section="endDay"><i class="bi bi-calendar-check"></i> End-Day Report</a></li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-section="activity">
+            <i class="bi bi-journal-text"></i> Audit Logs
+            <span class="badge text-bg-danger ms-1 d-none" data-activity-badge></span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <div class="main-content">
+      <header class="topbar">
+        <button
+          class="btn btn-sm btn-outline-secondary d-lg-none"
+          id="sidebarToggle"
+        >
+          <i class="bi bi-list"></i>
+        </button>
+        <h5 class="mb-0" id="pageTitle">Dashboard</h5>
+        <div class="topbar-user">
+          <div class="topbar-user-name">
+            <span id="topbarUserName">Administrator</span>
+            <span class="topbar-user-role" id="topbarUserRole">Administrator</span>
+          </div>
+          <button
+            class="btn btn-sm btn-outline-secondary"
+            id="logoutBtn"
+            title="Logout"
+          >
+            <i class="bi bi-box-arrow-right"></i><span class="d-none d-md-inline ms-1">Logout</span>
+          </button>
+        </div>
+      </header>
+
+      <main>
+        <!-- ================= DASHBOARD ================= -->
+        <section id="section-dashboard" class="content-section">
+          <div class="kpi-strip" id="dashboardKpis"></div>
+          <div class="row g-3">
+            <div class="col-lg-7">
+              <div class="panel">
+                <div class="panel-header">
+                  <span>Needs attention</span>
+                  <a href="#" class="small fw-normal" data-goto="arAccounts">Open AR Accounts</a>
+                </div>
+                <div class="panel-body" id="dashboardAttention"></div>
+              </div>
+              <div class="panel mt-3">
+                <div class="panel-header"><span>Store data</span></div>
+                <div class="panel-body"><dl class="admin-stats" id="dashboardStoreStats"></dl></div>
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="panel">
+                <div class="panel-header"><span>Recent activity</span></div>
+                <div class="list-group list-group-flush" id="dashboardActivity"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= PRODUCTS ================= -->
+        <section id="section-products" class="content-section d-none">
+                    <div class="admin-toolbar">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productModal" id="btnAddProduct">
+              <i class="bi bi-plus-lg"></i> Add Product
+            </button>
+
+            <div class="admin-toolbar-filters">
+              <input type="text" class="form-control admin-search" id="productSearch" placeholder="Search product...">
+              <select class="form-select" id="productStatusFilter">
+                <option value="active" selected>Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive data-card">
+            <table class="table table-hover align-middle mb-0">
+              <colgroup><col style="width:150px"><col><col style="width:170px"><col style="width:80px"><col style="width:80px"><col style="width:110px"><col style="width:100px"></colgroup>
+              <thead>
+                <tr>
+                  <th>Barcode</th>
+                  <th>Product</th>
+                  <th>Category</th>
+                  <th>Unit</th>
+                  <th>VAT</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="productTableBody"></tbody>
+            </table>
+            <div class="admin-table-footer">
+              <span class="admin-table-count" id="productCount"></span>
+              <div class="admin-pager" id="productPager">
+                <label class="admin-pager-label">Rows
+                  <select class="form-select form-select-sm" data-page-size>
+                    <option value="10">10</option>
+                    <option value="15" selected>15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-prev title="Previous page"><i class="bi bi-chevron-left"></i></button>
+                <span class="admin-page-info" data-page-info></span>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-next title="Next page"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= CATEGORIES ================= -->
+        <section id="section-units" class="content-section d-none">
+                    <div class="admin-toolbar">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#unitModal" id="btnAddUnit">
+              <i class="bi bi-plus-lg"></i> Add Unit
+            </button>
+            <div class="admin-toolbar-filters">
+              <input type="text" class="form-control admin-search" id="unitSearch" placeholder="Search unit...">
+              <select class="form-select" id="unitStatusFilter">
+                <option value="active" selected>Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive data-card">
+            <table class="table table-hover align-middle mb-0">
+              <colgroup><col><col style="width:120px"><col style="width:110px"><col style="width:100px"></colgroup>
+              <thead>
+                <tr>
+                  <th>Unit</th>
+                  <th>Code</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="unitTableBody"></tbody>
+            </table>
+            <div class="admin-table-footer">
+              <span class="admin-table-count" id="unitCount"></span>
+              <div class="admin-pager" id="unitPager">
+                <label class="admin-pager-label">Rows
+                  <select class="form-select form-select-sm" data-page-size>
+                    <option value="10">10</option>
+                    <option value="15" selected>15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-prev title="Previous page"><i class="bi bi-chevron-left"></i></button>
+                <span class="admin-page-info" data-page-info></span>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-next title="Next page"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="section-categories" class="content-section d-none">
+                    <div class="admin-toolbar">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#categoryModal" id="btnAddCategory">
+              <i class="bi bi-plus-lg"></i> Add Category
+            </button>
+            <div class="admin-toolbar-filters">
+              <input type="text" class="form-control admin-search" id="categorySearch" placeholder="Search category...">
+              <select class="form-select" id="categoryStatusFilter">
+                <option value="active" selected>Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive data-card">
+            <table class="table table-hover align-middle mb-0">
+              <colgroup><col><col><col style="width:110px"><col style="width:100px"></colgroup>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="categoryTableBody"></tbody>
+            </table>
+            <div class="admin-table-footer">
+              <span class="admin-table-count" id="categoryCount"></span>
+              <div class="admin-pager" id="categoryPager">
+                <label class="admin-pager-label">Rows
+                  <select class="form-select form-select-sm" data-page-size>
+                    <option value="10">10</option>
+                    <option value="15" selected>15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-prev title="Previous page"><i class="bi bi-chevron-left"></i></button>
+                <span class="admin-page-info" data-page-info></span>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-next title="Next page"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= PRODUCT PRICES ================= -->
+        <section id="section-productPrices" class="content-section d-none">
+                    <div class="admin-toolbar">
+            <div class="admin-toolbar-filters admin-toolbar-filters-start">
+              <input type="text" class="form-control admin-search" id="productPriceSearch" placeholder="Search by product...">
+              <select class="form-select" id="productPriceCategoryFilter">
+                <option value="">All Categories</option>
+              </select>
+              <select class="form-select" id="productPriceStatusFilter">
+                <option value="active" selected>Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+            <button type="button" class="btn btn-primary text-nowrap" id="btnManageProductPrice">
+              <i class="bi bi-currency-exchange me-1"></i>Manage Price
+            </button>
+          </div>
+          <div class="table-responsive data-card">
+            <table class="table table-hover align-middle mb-0">
+              <colgroup><col><col style="width:170px"><col style="width:150px"><col style="width:130px"><col style="width:110px"><col style="width:100px"></colgroup>
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Category</th>
+                  <th>Price Tier</th>
+                  <th class="num">Price</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="productPriceTableBody"></tbody>
+            </table>
+            <div class="admin-table-footer">
+              <span class="admin-table-count" id="productPriceCount"></span>
+              <div class="admin-pager" id="productPricePager">
+                <label class="admin-pager-label">Rows
+                  <select class="form-select form-select-sm" data-page-size>
+                    <option value="10">10</option>
+                    <option value="15" selected>15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-prev title="Previous page"><i class="bi bi-chevron-left"></i></button>
+                <span class="admin-page-info" data-page-info></span>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-next title="Next page"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= CUSTOMERS ================= -->
+        <section id="section-customers" class="content-section d-none">
+                    <div class="admin-toolbar">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#customerModal" id="btnAddCustomer">
+              <i class="bi bi-plus-lg"></i> Add Customer
+            </button>
+            <div class="admin-toolbar-filters">
+              <input type="text" class="form-control admin-search" id="customerSearch" placeholder="Search customer...">
+              <select class="form-select" id="customerStatusFilter">
+                <option value="active" selected>Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive data-card">
+            <table
+              class="table table-hover align-middle mb-0"
+              style="width: 100%; table-layout: fixed"
+            >
+              <colgroup>
+                <col style="width: 22%" />
+                <!-- Name -->
+                <col style="width: 20%" />
+                <!-- Contact -->
+                <col style="width: 16%" />
+                <!-- Price Tier -->
+                <col style="width: 14%" />
+                <!-- Type -->
+                <col style="width: 12%" />
+                <!-- Status -->
+                <col style="width: 16%" />
+                <!-- Actions -->
+              </colgroup>
+              <thead>
+                <tr>
+                  <th class="text-start">Name</th>
+                  <th>Contact</th>
+                  <th>Price Tier</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="customerTableBody"></tbody>
+            </table>
+            <div class="admin-table-footer">
+              <span class="admin-table-count" id="customerCount"></span>
+              <div class="admin-pager" id="customerPager">
+                <label class="admin-pager-label">Rows
+                  <select class="form-select form-select-sm" data-page-size>
+                    <option value="10">10</option>
+                    <option value="15" selected>15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-prev title="Previous page"><i class="bi bi-chevron-left"></i></button>
+                <span class="admin-page-info" data-page-info></span>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-next title="Next page"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= AR ACCOUNTS ================= -->
+        <section id="section-arAccounts" class="content-section d-none">
+                    <div class="admin-toolbar">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#arAccountModal" id="btnAddArAccount">
+              <i class="bi bi-plus-lg"></i> Open AR Account
+            </button>
+            <div class="admin-toolbar-filters">
+              <input type="text" class="form-control admin-search" id="arAccountSearch" placeholder="Search customer...">
+              <select class="form-select" id="arAccountStatusFilter">
+                <option value="active" selected>Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive data-card">
+            <table class="table table-hover align-middle mb-0">
+              <colgroup><col><col style="width:130px"><col style="width:130px"><col style="width:130px"><col style="width:120px"><col style="width:110px"><col style="width:140px"></colgroup>
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Term</th>
+                  <th class="num">Limit</th>
+                  <th class="num">Balance</th>
+                  <th>Credit Status</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="arAccountTableBody"></tbody>
+            </table>
+            <div class="admin-table-footer">
+              <span class="admin-table-count" id="arAccountCount"></span>
+              <div class="admin-pager" id="arAccountPager">
+                <label class="admin-pager-label">Rows
+                  <select class="form-select form-select-sm" data-page-size>
+                    <option value="10">10</option>
+                    <option value="15" selected>15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-prev title="Previous page"><i class="bi bi-chevron-left"></i></button>
+                <span class="admin-page-info" data-page-info></span>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-next title="Next page"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= SUKI CARDS ================= -->
+        <section id="section-sukiCards" class="content-section d-none">
+                    <div class="admin-toolbar">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#sukiCardModal" id="btnAddSukiCard">
+              <i class="bi bi-plus-lg"></i> Add Suki Card
+            </button>
+            <div class="admin-toolbar-filters">
+              <input type="text" class="form-control admin-search" id="sukiCardSearch" placeholder="Search card or customer...">
+              <select class="form-select" id="sukiCardStatusFilter">
+                <option value="active" selected>Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive data-card">
+            <table class="table table-hover align-middle mb-0">
+              <colgroup><col style="width:150px"><col><col style="width:110px"><col style="width:120px"><col style="width:110px"><col style="width:160px"></colgroup>
+              <thead>
+                <tr>
+                  <th>Card #</th>
+                  <th>Customer</th>
+                  <th class="num">Points</th>
+                  <th>Date Issued</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="sukiCardTableBody"></tbody>
+            </table>
+            <div class="admin-table-footer">
+              <span class="admin-table-count" id="sukiCardCount"></span>
+              <div class="admin-pager" id="sukiCardPager">
+                <label class="admin-pager-label">Rows
+                  <select class="form-select form-select-sm" data-page-size>
+                    <option value="10">10</option>
+                    <option value="15" selected>15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-prev title="Previous page"><i class="bi bi-chevron-left"></i></button>
+                <span class="admin-page-info" data-page-info></span>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-next title="Next page"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= GIFT CERTIFICATES ================= -->
+
+        <!-- ================= GC CODES (standalone, code-based) ================= -->
+        <section id="section-gcCodes" class="content-section d-none">
+                    <div class="admin-toolbar">
+            <button class="btn btn-primary" id="btnGenerateGcCodes">
+              <i class="bi bi-plus-lg"></i> Generate GC Codes
+            </button>
+            <div class="admin-toolbar-filters">
+              <input type="text" class="form-control admin-search" id="gcCodeSearch" placeholder="Search code...">
+              <select class="form-select" id="gcCodeStatusFilter">
+                <option value="available" selected>Available</option>
+                <option value="redeemed">Redeemed</option>
+                <option value="expired">Expired</option>
+                <option value="voided">Voided</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive data-card">
+            <table class="table table-hover align-middle mb-0">
+              <colgroup><col style="width:170px"><col style="width:130px"><col style="width:130px"><col style="width:120px"><col><col><col style="width:90px"></colgroup>
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th class="num">Face Value</th>
+                  <th>Expiration</th>
+                  <th>Status</th>
+                  <th>Issued</th>
+                  <th>Redeemed</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="gcCodeTableBody"></tbody>
+            </table>
+            <div class="admin-table-footer">
+              <span class="admin-table-count" id="gcCodeCount"></span>
+              <div class="admin-pager" id="gcCodePager">
+                <label class="admin-pager-label">Rows
+                  <select class="form-select form-select-sm" data-page-size>
+                    <option value="10">10</option>
+                    <option value="15" selected>15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-prev title="Previous page"><i class="bi bi-chevron-left"></i></button>
+                <span class="admin-page-info" data-page-info></span>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-next title="Next page"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= EMPLOYEES ================= -->
+        <section id="section-employees" class="content-section d-none">
+                    <div class="admin-toolbar">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#employeeModal" id="btnAddEmployee">
+              <i class="bi bi-plus-lg"></i> Add Employee
+            </button>
+            <div class="admin-toolbar-filters">
+              <input type="text" class="form-control admin-search" id="employeeSearch" placeholder="Search employee...">
+              <select class="form-select" id="employeeStatusFilter">
+                <option value="active" selected>Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive data-card">
+            <table class="table table-hover align-middle mb-0">
+              <colgroup><col><col style="width:150px"><col style="width:150px"><col style="width:150px"><col style="width:110px"><col style="width:100px"></colgroup>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Contact</th>
+                  <th>Username</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="employeeTableBody"></tbody>
+            </table>
+            <div class="admin-table-footer">
+              <span class="admin-table-count" id="employeeCount"></span>
+              <div class="admin-pager" id="employeePager">
+                <label class="admin-pager-label">Rows
+                  <select class="form-select form-select-sm" data-page-size>
+                    <option value="10">10</option>
+                    <option value="15" selected>15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-prev title="Previous page"><i class="bi bi-chevron-left"></i></button>
+                <span class="admin-page-info" data-page-info></span>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-next title="Next page"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= ROLES ================= -->
+        <section id="section-roles" class="content-section d-none">
+                    <div class="admin-toolbar">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#roleModal" id="btnAddRole">
+              <i class="bi bi-plus-lg"></i> Add Role
+            </button>
+            <div class="admin-toolbar-filters">
+              <input type="text" class="form-control admin-search" id="roleSearch" placeholder="Search role...">
+              <select class="form-select" id="roleStatusFilter">
+                <option value="active" selected>Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive data-card">
+            <table class="table table-hover align-middle mb-0">
+              <colgroup><col><col style="width:110px"><col style="width:100px"></colgroup>
+              <thead>
+                <tr>
+                  <th>Role Name</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="roleTableBody"></tbody>
+            </table>
+            <div class="admin-table-footer">
+              <span class="admin-table-count" id="roleCount"></span>
+              <div class="admin-pager" id="rolePager">
+                <label class="admin-pager-label">Rows
+                  <select class="form-select form-select-sm" data-page-size>
+                    <option value="10">10</option>
+                    <option value="15" selected>15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-prev title="Previous page"><i class="bi bi-chevron-left"></i></button>
+                <span class="admin-page-info" data-page-info></span>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-next title="Next page"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= PRICE TIERS ================= -->
+        <section id="section-priceTiers" class="content-section d-none">
+                    <div class="admin-toolbar">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#priceTierModal" id="btnAddPriceTier">
+              <i class="bi bi-plus-lg"></i> Add Price Tier
+            </button>
+            <div class="admin-toolbar-filters">
+              <input type="text" class="form-control admin-search" id="priceTierSearch" placeholder="Search tier...">
+              <select class="form-select" id="priceTierStatusFilter">
+                <option value="active" selected>Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive data-card">
+            <table class="table table-hover align-middle mb-0">
+              <colgroup><col><col style="width:110px"><col style="width:100px"></colgroup>
+              <thead>
+                <tr>
+                  <th>Tier Name</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="priceTierTableBody"></tbody>
+            </table>
+            <div class="admin-table-footer">
+              <span class="admin-table-count" id="priceTierCount"></span>
+              <div class="admin-pager" id="priceTierPager">
+                <label class="admin-pager-label">Rows
+                  <select class="form-select form-select-sm" data-page-size>
+                    <option value="10">10</option>
+                    <option value="15" selected>15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-prev title="Previous page"><i class="bi bi-chevron-left"></i></button>
+                <span class="admin-page-info" data-page-info></span>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-next title="Next page"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= CREDIT TERMS ================= -->
+        <section id="section-creditTerms" class="content-section d-none">
+                    <div class="admin-toolbar">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#creditTermModal" id="btnAddCreditTerm">
+              <i class="bi bi-plus-lg"></i> Add Credit Term
+            </button>
+            <div class="admin-toolbar-filters">
+              <input type="text" class="form-control admin-search" id="creditTermSearch" placeholder="Search term...">
+              <select class="form-select" id="creditTermStatusFilter">
+                <option value="active" selected>Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive data-card">
+            <table class="table table-hover align-middle mb-0">
+              <colgroup><col><col style="width:110px"><col style="width:110px"><col style="width:100px"></colgroup>
+              <thead>
+                <tr>
+                  <th>Term Name</th>
+                  <th class="num">Due Days</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="creditTermTableBody"></tbody>
+            </table>
+            <div class="admin-table-footer">
+              <span class="admin-table-count" id="creditTermCount"></span>
+              <div class="admin-pager" id="creditTermPager">
+                <label class="admin-pager-label">Rows
+                  <select class="form-select form-select-sm" data-page-size>
+                    <option value="10">10</option>
+                    <option value="15" selected>15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-prev title="Previous page"><i class="bi bi-chevron-left"></i></button>
+                <span class="admin-page-info" data-page-info></span>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-next title="Next page"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= DISCOUNTS ================= -->
+        <section id="section-discounts" class="content-section d-none">
+                    <div class="admin-toolbar">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#discountModal" id="btnAddDiscount">
+              <i class="bi bi-plus-lg"></i> Add Discount
+            </button>
+            <div class="admin-toolbar-filters">
+              <input type="text" class="form-control admin-search" id="discountSearch" placeholder="Search discount...">
+              <select class="form-select" id="discountStatusFilter">
+                <option value="active" selected>Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive data-card">
+            <table class="table table-hover align-middle mb-0">
+              <colgroup><col><col style="width:120px"><col style="width:110px"><col style="width:110px"><col style="width:100px"></colgroup>
+              <thead>
+                <tr>
+                  <th>Discount</th>
+                  <th>Type</th>
+                  <th class="num">Value</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="discountTableBody"></tbody>
+            </table>
+            <div class="admin-table-footer">
+              <span class="admin-table-count" id="discountCount"></span>
+              <div class="admin-pager" id="discountPager">
+                <label class="admin-pager-label">Rows
+                  <select class="form-select form-select-sm" data-page-size>
+                    <option value="10">10</option>
+                    <option value="15" selected>15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-prev title="Previous page"><i class="bi bi-chevron-left"></i></button>
+                <span class="admin-page-info" data-page-info></span>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-next title="Next page"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= PAYMENT TYPES ================= -->
+        <section id="section-paymentTypes" class="content-section d-none">
+                    <div class="admin-toolbar">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentTypeModal" id="btnAddPaymentType">
+              <i class="bi bi-plus-lg"></i> Add Payment Type
+            </button>
+            <div class="admin-toolbar-filters">
+              <input type="text" class="form-control admin-search" id="paymentTypeSearch" placeholder="Search payment type...">
+              <select class="form-select" id="paymentTypeStatusFilter">
+                <option value="active" selected>Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive data-card">
+            <table class="table table-hover align-middle mb-0">
+              <colgroup><col><col style="width:110px"><col style="width:100px"></colgroup>
+              <thead>
+                <tr>
+                  <th>Type Name</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="paymentTypeTableBody"></tbody>
+            </table>
+            <div class="admin-table-footer">
+              <span class="admin-table-count" id="paymentTypeCount"></span>
+              <div class="admin-pager" id="paymentTypePager">
+                <label class="admin-pager-label">Rows
+                  <select class="form-select form-select-sm" data-page-size>
+                    <option value="10">10</option>
+                    <option value="15" selected>15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-prev title="Previous page"><i class="bi bi-chevron-left"></i></button>
+                <span class="admin-page-info" data-page-info></span>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-next title="Next page"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= COUNTERS ================= -->
+        <section id="section-counters" class="content-section d-none">
+                    <div class="admin-toolbar">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#counterModal" id="btnAddCounter">
+              <i class="bi bi-plus-lg"></i> Add Counter
+            </button>
+            <div class="admin-toolbar-filters">
+              <input type="text" class="form-control admin-search" id="counterSearch" placeholder="Search counter...">
+              <select class="form-select" id="counterStatusFilter">
+                <option value="active" selected>Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive data-card">
+            <table class="table table-hover align-middle mb-0">
+              <colgroup><col><col style="width:110px"><col style="width:120px"><col style="width:110px"><col style="width:100px"></colgroup>
+              <thead>
+                <tr>
+                  <th>Counter Name</th>
+                  <th>Number</th>
+                  <th>Open/Closed</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="counterTableBody"></tbody>
+            </table>
+            <div class="admin-table-footer">
+              <span class="admin-table-count" id="counterCount"></span>
+              <div class="admin-pager" id="counterPager">
+                <label class="admin-pager-label">Rows
+                  <select class="form-select form-select-sm" data-page-size>
+                    <option value="10">10</option>
+                    <option value="15" selected>15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-prev title="Previous page"><i class="bi bi-chevron-left"></i></button>
+                <span class="admin-page-info" data-page-info></span>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-next title="Next page"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= SALES ================= -->
+        <section id="section-sales" class="content-section d-none">
+                    <div class="admin-toolbar">
+              <input type="text" class="form-control admin-search" id="saleSearch" placeholder="Search receipt, cashier, or customer...">
+            <div class="admin-toolbar-filters">
+              <input type="date" class="form-control" id="saleDateFilter">
+              <button class="btn btn-outline-secondary" id="btnClearSaleDate" title="Clear date"><i class="bi bi-x-lg"></i></button>
+              <select class="form-select" id="saleStatusFilter">
+                <option value="completed" selected>Completed</option>
+                <option value="voided">Voided</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-meta" id="saleSummary"></div>
+          <div class="table-responsive data-card">
+            <table class="table table-hover align-middle mb-0">
+              <colgroup><col style="width:130px"><col style="width:150px"><col style="width:120px"><col><col><col style="width:130px"><col style="width:120px"><col style="width:110px"><col style="width:100px"></colgroup>
+              <thead>
+                <tr>
+                  <th>Receipt</th>
+                  <th>Date/Time</th>
+                  <th>Counter</th>
+                  <th>Cashier</th>
+                  <th>Customer</th>
+                  <th>Payment</th>
+                  <th class="num">Total</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="saleTableBody"></tbody>
+            </table>
+            <div class="admin-table-footer">
+              <span class="admin-table-count" id="saleCount"></span>
+              <div class="admin-pager" id="salePager">
+                <label class="admin-pager-label">Rows
+                  <select class="form-select form-select-sm" data-page-size>
+                    <option value="10">10</option>
+                    <option value="15" selected>15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-prev title="Previous page"><i class="bi bi-chevron-left"></i></button>
+                <span class="admin-page-info" data-page-info></span>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" data-page-next title="Next page"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="section-reports" class="content-section d-none">
+          <div id="administratorReports"></div>
+        </section>
+
+        <!-- ================= END-DAY REPORT ================= -->
+        <section id="section-endDay" class="content-section d-none">
+          <div class="admin-toolbar">
+            <input type="date" class="form-control" id="endDayDate" style="width:180px">
+            <span id="endDayStatusChip"></span>
+            <div class="admin-toolbar-filters">
+              <button class="btn btn-outline-secondary" id="btnEndDayRefresh"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+              <button class="btn btn-outline-primary" id="btnEndDayPrint"><i class="bi bi-printer"></i> Print A4</button>
+            </div>
+          </div>
+
+          <div class="card mb-3"><div class="card-body">
+            <h6 class="card-title">Finalize checks</h6>
+            <div id="endDayChecks" class="d-flex flex-wrap gap-4"></div>
+            <div class="text-warning small mt-2 d-none" id="endDayUnattributed"></div>
+          </div></div>
+
+          <div class="row g-3 mb-3" id="endDayKpis"></div>
+
+          <div class="table-responsive data-card mb-3">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Shift</th><th>Cashier</th><th>Counter</th><th>Time</th>
+                  <th class="num">Opening</th><th class="num">Expected</th><th class="num">Counted</th><th class="num">Variance</th>
+                  <th>Authorized by</th><th>Deposit</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="endDayShiftBody"></tbody>
+            </table>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="card h-100"><div class="card-body">
+                <h6 class="card-title">Day totals</h6>
+                <div id="endDayTotals"></div>
+              </div></div>
+            </div>
+            <div class="col-md-6">
+              <div class="card h-100"><div class="card-body">
+                <h6 class="card-title">Discrepancies — documented, not resolved</h6>
+                <div id="endDayDiscrepancies"></div>
+              </div></div>
+            </div>
+          </div>
+
+          <div class="card mb-3"><div class="card-body">
+            <h6 class="card-title">Finalize End-Day</h6>
+            <div class="d-flex flex-wrap gap-2 align-items-center" id="endDayFinalizePanel">
+              <input type="text" class="form-control" id="endDayAuthUser" placeholder="Supervisor / Admin username" style="width:220px" autocomplete="off">
+              <input type="password" class="form-control" id="endDayAuthPass" placeholder="Password" style="width:200px">
+              <button class="btn btn-success" id="btnEndDayFinalize">Finalize End-Day Report</button>
+              <span class="small text-muted" id="endDayFinalizeNote"></span>
+            </div>
+            <div class="text-danger small mt-2" id="endDayActionError"></div>
+            <div id="endDayEvents" class="small text-muted mt-2"></div>
+          </div></div>
+
+          <div class="card"><div class="card-body">
+            <h6 class="card-title">History</h6>
+            <div class="table-responsive">
+              <table class="table table-sm align-middle mb-0">
+                <thead>
+                  <tr><th>Date</th><th>Status</th><th class="num">Shifts</th><th class="num">Net sales</th><th class="num">Variance</th><th>Finalized by</th><th></th></tr>
+                </thead>
+                <tbody id="endDayHistoryBody"></tbody>
+              </table>
+            </div>
+          </div></div>
+        </section>
+
+        <!-- ================= AUDIT LOGS ================= -->
+        <section id="section-activity" class="content-section d-none">
+          <div class="admin-toolbar">
+            <input type="text" class="form-control admin-search" id="auditSearch" placeholder="Search actor, record, reference...">
+            <div class="admin-toolbar-filters">
+              <button class="btn btn-outline-secondary" id="btnExportAudit" title="Export CSV (Administrator)"><i class="bi bi-download"></i> Export CSV</button>
+              <button class="btn btn-outline-secondary" id="btnRefreshAudit" title="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
+            </div>
+          </div>
+          <div class="admin-toolbar">
+            <div class="admin-toolbar-filters">
+              <label class="small text-muted">From <input type="date" class="form-control" id="auditDateFrom"></label>
+              <label class="small text-muted">To <input type="date" class="form-control" id="auditDateTo"></label>
+              <select class="form-select" id="auditUserFilter"><option value="">All users</option></select>
+              <select class="form-select" id="auditRoleFilter"><option value="">All roles</option></select>
+              <select class="form-select" id="auditModuleFilter"><option value="">All modules</option></select>
+              <select class="form-select" id="auditActionFilter"><option value="">All actions</option></select>
+              <select class="form-select" id="auditOutcomeFilter">
+                <option value="">All outcomes</option>
+                <option value="Success">Success</option>
+                <option value="Failed">Failed</option>
+                <option value="Denied">Denied</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive data-card">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Date/Time</th>
+                  <th>Actor</th>
+                  <th>Role</th>
+                  <th>Module</th>
+                  <th>Action</th>
+                  <th>Outcome</th>
+                  <th>Record</th>
+                  <th>Reference</th>
+                  <th>Authorized By</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="auditTableBody"></tbody>
+            </table>
+            <div class="admin-table-footer">
+              <span class="admin-table-count" id="auditCount"></span>
+              <div class="admin-pager">
+                <label class="admin-pager-label">Rows
+                  <select class="form-select form-select-sm" id="auditPageSize">
+                    <option value="10">10</option>
+                    <option value="15" selected>15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" id="auditPagePrev" title="Previous page"><i class="bi bi-chevron-left"></i></button>
+                <span class="admin-page-info" id="auditPageInfo"></span>
+                <button type="button" class="btn btn-outline-secondary admin-page-btn" id="auditPageNext" title="Next page"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+    <!-- ================= AUDIT DETAIL MODAL ================= -->
+    <div class="modal fade" id="auditDetailModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Audit Record</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body" id="auditDetailBody"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= TOASTS ================= -->
+    <div
+      class="toast-container position-fixed bottom-0 end-0 p-3"
+      id="toastContainer"
+      style="z-index: 1200"
+    ></div>
+
+    <!-- ================= SHARED DEACTIVATE MODAL ================= -->
+    <div class="modal fade" id="deactivateModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="bi bi-exclamation-triangle text-warning"></i> Confirm
+              Deactivation
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to deactivate:</p>
+            <p class="fw-bold fs-5" id="deactivateRecordLabel"></p>
+            <p class="text-muted small mb-0">
+              This record will NOT be permanently deleted. It will be marked as
+              inactive and will no longer appear in normal active selections.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger"
+              id="confirmDeactivateBtn"
+            >
+              Deactivate
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SHARED RESTORE MODAL ================= -->
+    <div class="modal fade" id="restoreModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="bi bi-arrow-counterclockwise text-success"></i> Confirm
+              Restore
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>Do you want to restore:</p>
+            <p class="fw-bold fs-5" id="restoreRecordLabel"></p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-success"
+              id="confirmRestoreBtn"
+            >
+              Restore
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= VOID SALE MODAL ================= -->
+    <div class="modal fade" id="voidSaleModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="voidSaleForm">
+            <div class="modal-header">
+              <h5 class="modal-title">
+                <i class="bi bi-exclamation-triangle text-danger"></i> Void Sale
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="voidSaleId" />
+              <p>Void: <strong id="voidSaleLabel"></strong></p>
+              <p class="text-muted small">
+                This does not delete the sale - it stays on record as Voided,
+                and any AR balance or Suki points it created are reversed.
+              </p>
+              <div class="mb-3">
+                <label class="form-label">Reason *</label>
+                <textarea
+                  class="form-control"
+                  id="voidSaleReason"
+                  rows="2"
+                  required
+                ></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-danger">Void Sale</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= VIEW MODAL (generic, content injected per record) ================= -->
+    <div class="modal fade" id="viewModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Record Details</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body" id="viewModalBody"></div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= ROLE MODAL ================= -->
+    <div class="modal fade" id="roleModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="roleForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="roleModalTitle">Add Role</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="roleId" />
+              <div class="mb-3">
+                <label class="form-label">Role Name *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="roleName"
+                  required
+                />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">Save Role</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PRICE TIER MODAL ================= -->
+    <div class="modal fade" id="priceTierModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="priceTierForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="priceTierModalTitle">
+                Add Price Tier
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="priceTierId" />
+              <div class="mb-3">
+                <label class="form-label">Tier Name *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="tierName"
+                  required
+                />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Save Price Tier
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= CREDIT TERM MODAL ================= -->
+    <div class="modal fade" id="creditTermModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="creditTermForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="creditTermModalTitle">
+                Add Credit Term
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="creditTermId" />
+              <div class="mb-3">
+                <label class="form-label">Term Name *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="termName"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Due Days *</label>
+                <input
+                  type="number"
+                  min="0"
+                  class="form-control"
+                  id="dueDays"
+                  required
+                />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Save Credit Term
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PAYMENT TYPE MODAL ================= -->
+    <div class="modal fade" id="paymentTypeModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="paymentTypeForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="paymentTypeModalTitle">
+                Add Payment Type
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="paymentTypeId" />
+              <div class="mb-3">
+                <label class="form-label">Type Name *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="typeName"
+                  required
+                />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Save Payment Type
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= COUNTER MODAL ================= -->
+    <div class="modal fade" id="counterModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="counterForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="counterModalTitle">Add Counter</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="counterId" />
+              <div class="mb-3">
+                <label class="form-label">Counter Name *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="counterName"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Counter Number *</label>
+                <input
+                  type="number"
+                  min="1"
+                  class="form-control"
+                  id="counterNumber"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select class="form-select" id="counterOpenStatus">
+                  <option value="Open">Open</option>
+                  <option value="Closed" selected>Closed</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Save Counter
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= CATEGORY MODAL ================= -->
+    <div class="modal fade" id="categoryModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="categoryForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="categoryModalTitle">Add Category</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="categoryId" />
+              <div class="mb-3">
+                <label class="form-label">Category Name *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="categoryName"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea
+                  class="form-control"
+                  id="categoryDescription"
+                  rows="2"
+                ></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Save Category
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PRODUCT MODAL ================= -->
+    <div class="modal fade" id="unitModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="unitForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="unitModalTitle">Add Unit</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="unitId" />
+              <div class="mb-3">
+                <label class="form-label">Unit Name *</label
+                ><input class="form-control" id="unitName" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Unit Code *</label
+                ><input
+                  class="form-control"
+                  id="unitCode"
+                  maxlength="10"
+                  required
+                />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel</button
+              ><button type="submit" class="btn btn-primary">Save Unit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="productModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="productForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="productModalTitle">Add Product</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="productId" />
+              <div class="mb-3">
+                <label class="form-label">Barcode *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="productBarcode"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Product Name *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="productName"
+                  required
+                />
+              </div>
+              <div id="productTierPricesSection" class="border-top pt-3 mt-3">
+                <label class="form-label fw-semibold">Price by tier</label>
+                <p class="form-text mt-0">
+                  Enter the default (usually Regular) price. Other tier prices
+                  are optional and fall back to the default price when blank.
+                </p>
+                <div class="row g-3" id="productTierPrices"></div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Category *</label>
+                <select
+                  class="form-select"
+                  id="productCategory"
+                  required
+                ></select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Unit *</label>
+                <select class="form-select" id="productUnit" required></select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">VAT *</label>
+                <select class="form-select" id="productVatable" required>
+                  <option value="1" selected>Vatable</option>
+                  <option value="0">Non-Vatable</option>
+                </select>
+              </div>
+              <div class="mb-3 form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  id="productWholesaleBarcode"
+                />
+                <label class="form-check-label" for="productWholesaleBarcode">
+                  Wholesale barcode — only customers with Type = Wholesale may
+                  buy this product, and only its Wholesale price is used
+                </label>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Save Product
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PRODUCT PRICE MODAL (Manage Price) ================= -->
+    <div class="modal fade" id="productPriceModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="productPriceForm">
+            <div class="modal-header">
+              <h5 class="modal-title">Manage Product Price</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label" for="productPriceProductSelect"
+                  >Product *</label
+                >
+                <select
+                  class="form-select"
+                  id="productPriceProductSelect"
+                  required
+                >
+                  <option value="">-- Select a product --</option>
+                </select>
+              </div>
+              <div id="productPriceTiersWrapper" class="d-none">
+                <label class="form-label">Price per Tier</label>
+                <div id="productPriceTiersContainer"></div>
+              </div>
+              <p
+                class="text-muted small mb-0 d-none"
+                id="productPriceNoTiersMsg"
+              >
+                No active price tiers found. Add one on the Price Tiers page
+                first.
+              </p>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="btn btn-primary"
+                id="productPriceSaveBtn"
+                disabled
+              >
+                Save Prices
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= DISCOUNT MODAL ================= -->
+    <div class="modal fade" id="discountModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="discountForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="discountModalTitle">Add Discount</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="discountId" />
+              <div class="mb-3">
+                <label class="form-label">Discount Name *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="discountName"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Type *</label>
+                <select class="form-select" id="discountType" required>
+                  <option value="Percentage">Percentage</option>
+                  <option value="Fixed">Fixed</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Value *</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  class="form-control"
+                  id="discountValue"
+                  required
+                />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Save Discount
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="customerModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <form id="customerForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="customerModalTitle">Add Customer</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="customerId" />
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">First Name *</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="customerFirstName"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Last Name *</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="customerLastName"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Contact Number *</label>
+                  <input
+                    type="tel"
+                    inputmode="numeric"
+                    maxlength="11"
+                    class="form-control"
+                    id="customerContact"
+                    placeholder="09XXXXXXXXX"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Email</label>
+                  <input type="email" class="form-control" id="customerEmail" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Price Tier *</label>
+                  <select
+                    class="form-select"
+                    id="customerPriceTier"
+                    required
+                  ></select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Customer Type</label>
+                  <select class="form-select" id="customerType">
+                    <option value="Regular" selected>Regular</option>
+                    <option value="Wholesale">Wholesale</option>
+                    <option value="VIP">VIP</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Street</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="customerStreet"
+                    placeholder="House/Unit no., building, street"
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Province</label>
+                  <select class="form-select" id="customerProvince">
+                    <option value="" selected>Select Province</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">City/Municipality</label>
+                  <select class="form-select" id="customerCity" disabled>
+                    <option value="" selected>Select City/Municipality</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Barangay</label>
+                  <select class="form-select" id="customerBarangay" disabled>
+                    <option value="" selected>Select Barangay</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Save Customer
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- ================= SUKI CARD MODAL ================= -->
+    <div class="modal fade" id="sukiCardModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="sukiCardForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="sukiCardModalTitle">Add Suki Card</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="sukiCardId" />
+              <div class="mb-3">
+                <label class="form-label">Customer *</label>
+                <select
+                  class="form-select"
+                  id="sukiCardCustomer"
+                  required
+                ></select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Card Number (auto-generated)</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="sukiCardNumber"
+                  readonly
+                  required
+                />
+              </div>
+              <div
+                class="alert alert-light border small d-none"
+                id="sukiCardPointsWrapper"
+              >
+                Point balances are not edited from the card form. Use the Admin
+                Point Adjustment action so every manual change includes a reason
+                and audit history.
+              </div>
+              <div class="mb-3" id="sukiCardDateWrapper">
+                <label class="form-label">Date Issued *</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="sukiCardDateIssued"
+                />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Save Suki Card
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= GIFT CERTIFICATE MODAL ================= -->
+    <!-- GC Codes: batch generation -->
+    <div class="modal fade" id="gcBatchModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="gcBatchForm">
+            <div class="modal-header">
+              <h5 class="modal-title">Generate GC Codes</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <div class="alert alert-light border small">
+                Codes are unique, not tied to any customer or Suki Card, and can
+                each be redeemed once at the register. Expired or voided codes
+                are rejected automatically.
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Quantity *</label>
+                <input type="number" min="1" max="500" step="1" class="form-control" id="gcQuantity" value="10" required />
+                <div class="form-text">1 to 500 codes per batch.</div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Denomination *</label>
+                <select class="form-select" id="gcDenomination" required>
+                  <option value="100">₱100</option>
+                  <option value="200">₱200</option>
+                  <option value="500" selected>₱500</option>
+                  <option value="1000">₱1,000</option>
+                  <option value="custom">Custom amount…</option>
+                </select>
+              </div>
+              <div class="mb-3 d-none" id="gcCustomWrap">
+                <label class="form-label">Custom Amount *</label>
+                <input type="number" min="0.01" step="0.01" class="form-control" id="gcCustomAmount" />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Expiration Date *</label>
+                <input type="date" class="form-control" id="gcExpiration" required />
+              </div>
+              <div class="text-danger small" id="gcBatchError"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Generate</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- GC Codes: print generated batch -->
+    <div class="modal fade" id="gcPrintModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Generated GC Codes</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div id="gcPrintSheet" class="print-area"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="btnPrintGcBatch"><i class="bi bi-printer"></i> Print</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GC Codes: void confirmation -->
+    <div class="modal fade" id="gcVoidModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Void Gift Certificate Code</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <p class="mb-1">Void this gift certificate code?</p>
+            <p class="fw-bold" id="gcVoidLabel"></p>
+            <p class="text-muted small mb-0">A voided code can never be redeemed. A redeemed code can never be voided.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" id="btnConfirmGcVoid">Void Code</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ================= SUKI POINT ADJUSTMENT MODAL ================= -->
+    <div class="modal fade" id="pointAdjustmentModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="pointAdjustmentForm">
+            <div class="modal-header">
+              <h5 class="modal-title">Adjust Suki Points</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="pointAdjustmentCardId" />
+              <div class="alert alert-light border">
+                <div class="small text-muted">Customer / Suki Card</div>
+                <strong id="pointAdjustmentCustomer"></strong>
+                <div class="small" id="pointAdjustmentCardNumber"></div>
+                <div class="small mt-1">
+                  Current Points: <strong id="pointAdjustmentCurrent"></strong>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Adjustment *</label
+                ><input
+                  type="number"
+                  step="1"
+                  class="form-control"
+                  id="pointAdjustmentAmount"
+                  placeholder="+50 or -20"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Reason *</label
+                ><textarea
+                  class="form-control"
+                  id="pointAdjustmentReason"
+                  rows="3"
+                  maxlength="255"
+                  required
+                  placeholder="Reason for this manual adjustment"
+                ></textarea>
+              </div>
+              <div class="text-danger small" id="pointAdjustmentError"></div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel</button
+              ><button type="submit" class="btn btn-primary">
+                Save Adjustment
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SUKI POINT HISTORY MODAL ================= -->
+    <div class="modal fade" id="pointHistoryModal" tabindex="-1">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Suki Point History</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="small text-muted mb-2" id="pointHistoryLabel"></div>
+            <div class="table-responsive">
+              <table class="table table-sm align-middle">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Event</th>
+                    <th>Description</th>
+                    <th class="text-end">Points</th>
+                    <th>By</th>
+                  </tr>
+                </thead>
+                <tbody id="pointHistoryBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= EMPLOYEE MODAL ================= -->
+    <div class="modal fade" id="employeeModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="employeeForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="employeeModalTitle">Add Employee</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="employeeId" />
+              <div class="mb-3">
+                <label class="form-label">First Name *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="employeeFirstName"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Last Name *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="employeeLastName"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Role *</label>
+                <select class="form-select" id="employeeRole" required></select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Contact Number</label>
+                <input type="text" class="form-control" id="employeeContact" />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Username *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="employeeUsername"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label" id="employeePasswordLabel"
+                  >Password *</label
+                >
+                <input
+                  type="password"
+                  class="form-control"
+                  id="employeePassword"
+                />
+                <div
+                  class="form-text"
+                  id="employeePasswordHint"
+                  style="display: none"
+                >
+                  Leave blank to keep the current password.
+                </div>
+                <ul class="pw-policy" id="employeePasswordPolicy">
+                  <li id="ppLen"><span class="pw-mk">✓</span>At least 8 characters</li>
+                  <li id="ppDigit"><span class="pw-mk">✓</span>At least 3 digits</li>
+                  <li id="ppSym"><span class="pw-mk">✓</span>At least 1 symbol (! @ # $ % …)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Save Employee
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= AR ACCOUNT MODAL ================= -->
+    <div class="modal fade" id="arAccountModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="arAccountForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="arAccountModalTitle">
+                Open AR Account
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="arAccountId" />
+              <div class="mb-3" id="arAccountModeWrapper">
+                <ul class="nav nav-tabs">
+                  <li class="nav-item">
+                    <button
+                      type="button"
+                      class="nav-link active"
+                      id="arModeExistingBtn"
+                    >
+                      Existing Customer
+                    </button>
+                  </li>
+                  <li class="nav-item">
+                    <button
+                      type="button"
+                      class="nav-link"
+                      id="arModeNewBtn"
+                    >
+                      New Customer
+                    </button>
+                  </li>
+                </ul>
+              </div>
+              <div class="mb-3" id="arAccountCustomerWrapper">
+                <label class="form-label">Customer *</label>
+                <select
+                  class="form-select"
+                  id="arAccountCustomer"
+                  required
+                ></select>
+                <div class="form-text">
+                  Only customers without an AR account are listed.
+                </div>
+              </div>
+              <div id="arNewCustomerPane" class="d-none">
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <label class="form-label">First name *</label>
+                    <input class="form-control" id="arNewFirstName" />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Last name *</label>
+                    <input class="form-control" id="arNewLastName" />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Contact number *</label>
+                    <input
+                      class="form-control"
+                      id="arNewContact"
+                      maxlength="11"
+                      inputmode="numeric"
+                      placeholder="09xxxxxxxxx"
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input
+                      type="email"
+                      class="form-control"
+                      id="arNewEmail"
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Street</label>
+                    <input class="form-control" id="arNewStreet" />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Barangay</label>
+                    <input class="form-control" id="arNewBarangay" />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">City</label>
+                    <input class="form-control" id="arNewCity" />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Province</label>
+                    <input class="form-control" id="arNewProvince" />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Customer type</label>
+                    <select class="form-select" id="arNewType">
+                      <option>Regular</option>
+                      <option>Wholesale</option>
+                      <option>VIP</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Price tier *</label>
+                    <select class="form-select" id="arNewPriceTier"></select>
+                  </div>
+                </div>
+                <p class="small text-muted mt-2 mb-3">
+                  The customer record and the AR account are created together.
+                  The account is submitted for approval (Pending), the same as
+                  the Existing Customer option.
+                </p>
+              </div>
+              <div class="mb-3" id="arAccountEmployeeWrapper">
+                <label class="form-label"
+                  >Manager / Administrator Authorization *</label
+                >
+                <select
+                  class="form-select"
+                  id="arAccountEmployee"
+                  required
+                ></select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Credit Term *</label>
+                <select
+                  class="form-select"
+                  id="arAccountCreditTerm"
+                  required
+                ></select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Credit Limit *</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  class="form-control"
+                  id="arAccountCreditLimit"
+                  required
+                />
+              </div>
+              <div class="mb-3" id="arAccountDateWrapper">
+                <label class="form-label">Date Opened *</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="arAccountDateOpened"
+                  required
+                />
+              </div>
+              <div
+                class="mb-3"
+                id="arAccountCreditStatusWrapper"
+                style="display: none"
+              >
+                <label class="form-label">Credit Status</label>
+                <select class="form-select" id="arAccountCreditStatus">
+                  <option value="Good">Good</option>
+                  <option value="Watch">Watch</option>
+                  <option value="Hold">Hold</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Save AR Account
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- End-Day: reopen a finalized day (Supervisor/Admin + reason) -->
+    <div class="modal fade" id="endDayReopenModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Reopen End-Day — <span id="endDayReopenDate"></span></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <label class="form-label" for="endDayReopenUser">Supervisor / Admin username</label>
+            <input class="form-control mb-2" id="endDayReopenUser" autocomplete="off">
+            <label class="form-label" for="endDayReopenPass">Password</label>
+            <input type="password" class="form-control mb-2" id="endDayReopenPass">
+            <label class="form-label" for="endDayReopenReason">Reason (required)</label>
+            <input class="form-control" id="endDayReopenReason" maxlength="255" placeholder="Why is this day being reopened?">
+            <div class="small text-muted mt-2">The reopen is permanently recorded. Closed shifts are not reopened or changed.</div>
+            <div class="text-danger small mt-2" id="endDayReopenError"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" id="btnEndDayReopenConfirm">Reopen Day</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- End-Day A4 print area (populated by modules/endDay.js) -->
+    <div id="endDayPrintArea"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.7.7/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script type="module" src="index.js"></script>
+  
+</body>
+</html>
